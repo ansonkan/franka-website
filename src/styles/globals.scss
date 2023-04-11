@@ -1,0 +1,24 @@
+@import './_functions.scss';
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  // Note: `sticky` doesn't work when hiding overflow
+  // overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+// https://github.com/studio-freight/lenis/tree/main#hide-overflow-when-lenis-is-stopped
+html.lenis-stopped {
+  overflow: hidden;
+}
