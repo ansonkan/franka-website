@@ -6,6 +6,11 @@ html.lenis-stopped {
   overflow: hidden;
 }
 
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
 .page {
   min-height: 100vh;
 }
