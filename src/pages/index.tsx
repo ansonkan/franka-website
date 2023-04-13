@@ -35,6 +35,8 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
 
     const newActiveIndex = Math.round(scroll / itemHeight)
 
+    if (isNaN(newActiveIndex)) return
+
     if (newActiveIndex !== activeIndex.current) {
       gsap.to(listRef.current.children.item(newActiveIndex), {
         fontWeight: 900,
@@ -55,7 +57,7 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
   return (
     <main className="page">
       <Head>
-        <title>Franka Zweydinger</title>
+        <title>Franka</title>
         <meta name="description" content="Franka" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -88,7 +90,7 @@ export const getStaticProps: GetStaticProps<IndexProps> = () => {
   return {
     props: {
       selectedWorks: [
-        'Franka Zweydinger',
+        'Franka',
         'Hong Kong',
         'Sunset',
         'Island',
