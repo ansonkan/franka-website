@@ -1,7 +1,7 @@
 import { GetStaticProps, NextPage } from 'next'
-import { Default } from '@/layouts/default'
 import Head from 'next/head'
 import cn from 'clsx'
+import { emberly } from '@/fonts'
 import gsap from 'gsap'
 import s from './index.module.scss'
 import { useRect } from '@studio-freight/hamo'
@@ -14,57 +14,71 @@ interface IndexProps {
 }
 
 const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
-  const [wrapperRectRef, wrapperRect] = useRect()
-  const wrapperRef = useRef<HTMLDivElement>(null)
+  const activeIndex = useRef<number | null>(null)
+  const listRef = useRef<HTMLDivElement | null>(null)
+  const [listRectRef, listRect] = useRect()
 
   const { height: windowHeight } = useWindowSize()
 
-  const baseHeight = windowHeight + wrapperRect.height
+  const itemHeight = listRect.height / selectedWorks.length
+  const total = listRect.height - itemHeight
+  const scrollHeight = windowHeight + total
 
   useScroll(({ scroll }) => {
-    const children = wrapperRef.current?.children[0].children
-    if (!wrapperRect || !children) return
+    if (!listRect || !listRef.current) return
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const cards = [...children]
-
-    gsap.to(cards, {
-      y: -scroll,
-      stagger: 0.01,
+    gsap.to(listRef.current, {
+      translateY: (windowHeight - itemHeight) / 2 - scroll,
       ease: 'none',
-      duration: 0.01,
+      duration: 0,
     })
+
+    const newActiveIndex = Math.round(scroll / itemHeight)
+
+    if (newActiveIndex !== activeIndex.current) {
+      gsap.to(listRef.current.children.item(newActiveIndex), {
+        fontWeight: 900,
+        duration: 0.3,
+      })
+
+      if (typeof activeIndex.current === 'number') {
+        gsap.to(listRef.current.children.item(activeIndex.current), {
+          fontWeight: 100,
+          duration: 0.3,
+        })
+      }
+
+      activeIndex.current = newActiveIndex
+    }
   })
 
   return (
-    <Default>
+    <main className="page">
       <Head>
-        <title>Franka</title>
+        <title>Franka Zweydinger</title>
         <meta name="description" content="Franka" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div style={{ height: baseHeight || 0 }} ref={wrapperRef}>
-        <div
-          ref={wrapperRectRef}
-          // ref={wrapperRef}
-          className={cn(s.wrapper)}
-          style={{
-            transform: `translateY(${
-              windowHeight / 2 - wrapperRect.height / selectedWorks.length / 2
-            }px)`,
-          }}
-        >
-          {selectedWorks.map((work, i) => (
-            <h2 key={i} className={cn(s.work)}>
-              {work}
-            </h2>
-          ))}
-        </div>
+      <div className={s.center} style={{ height: itemHeight || 'auto' }} />
+
+      <div style={{ height: scrollHeight || 'auto' }} />
+
+      <div
+        ref={(node) => {
+          listRef.current = node
+          listRectRef(node)
+        }}
+        className={s.list}
+      >
+        {selectedWorks.map((title, i) => (
+          <h2 key={i} className={cn(s.work, emberly.className)}>
+            {title}
+          </h2>
+        ))}
       </div>
-    </Default>
+    </main>
   )
 }
 
@@ -74,18 +88,18 @@ export const getStaticProps: GetStaticProps<IndexProps> = () => {
   return {
     props: {
       selectedWorks: [
-        'First time',
+        'Franka Zweydinger',
         'Hong Kong',
         'Sunset',
         'Island',
         'Very Loooooooooooong Title',
-        'Testing out ü',
-        'First time',
+        'Testing out Ä ä Ö ö Ü ü ß',
+        'Second time',
         'Hong Kong',
         'Sunset',
         'Island',
         'Very Loooooooooooong Title',
-        'Testing out ü',
+        'Testing out Ä ä Ö ö Ü ü ß',
       ],
     },
   }
