@@ -1,16 +1,18 @@
+/* eslint-disable @next/next/no-img-element */
 import { GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
+// import Image from 'next/image'
 import Link from 'next/link'
 import cn from 'clsx'
+import contentfulLoader from '@/lib/contentful-image-loader'
 import gsap from 'gsap'
+import { mapRange } from '@/lib/maths'
 import { robotoFlex } from '@/fonts'
 import s from './index.module.scss'
 import { useRect } from '@studio-freight/hamo'
 import { useRef } from 'react'
 import { useScroll } from '@/lib/use-scroll'
 import { useWindowSize } from 'react-use'
-import { mapRange } from '@/lib/maths'
 
 interface Collection {
   title: string
@@ -94,13 +96,15 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
         {[...selectedWorks].reverse().map(({ title, thumbnail }, i) => {
           return (
             <li key={i} className={s.thumbnail}>
-              <Image
-                src={thumbnail.url}
-                fill
+              {/* <Image src={thumbnail.url} fill alt={title} quality={5} /> */}
+
+              <img
+                src={contentfulLoader({
+                  src: thumbnail.url,
+                  width: Math.round(thumbnail.height / 5),
+                  quality: 5,
+                })}
                 alt={title}
-                quality={40}
-                priority
-                loading="eager"
               />
             </li>
           )
