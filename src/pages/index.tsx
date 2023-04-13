@@ -1,8 +1,8 @@
 import { GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
 import cn from 'clsx'
-import { emberly } from '@/fonts'
 import gsap from 'gsap'
+import { robotoFlex } from '@/fonts'
 import s from './index.module.scss'
 import { useRect } from '@studio-freight/hamo'
 import { useRef } from 'react'
@@ -38,16 +38,10 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
     if (isNaN(newActiveIndex)) return
 
     if (newActiveIndex !== activeIndex.current) {
-      gsap.to(listRef.current.children.item(newActiveIndex), {
-        fontWeight: 900,
-        duration: 0.3,
-      })
+      activateTitle(listRef.current.children.item(newActiveIndex), 'on')
 
       if (typeof activeIndex.current === 'number') {
-        gsap.to(listRef.current.children.item(activeIndex.current), {
-          fontWeight: 100,
-          duration: 0.3,
-        })
+        activateTitle(listRef.current.children.item(activeIndex.current), 'off')
       }
 
       activeIndex.current = newActiveIndex
@@ -75,7 +69,16 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
         className={s.list}
       >
         {selectedWorks.map((title, i) => (
-          <h2 key={i} className={cn(s.work, emberly.className)}>
+          <h2
+            key={i}
+            className={cn(s.work, robotoFlex.className)}
+            onMouseEnter={(event) => {
+              hoverTitle(event.target, 'on')
+            }}
+            onMouseLeave={(event) => {
+              hoverTitle(event.target, 'off')
+            }}
+          >
             {title}
           </h2>
         ))}
@@ -105,4 +108,43 @@ export const getStaticProps: GetStaticProps<IndexProps> = () => {
       ],
     },
   }
+}
+
+const PARAMS = {
+  activate: {
+    on: {
+      duration: 0.15,
+      '--wght': 1000,
+      '--wdth': 100,
+      opacity: 1,
+    },
+    off: {
+      duration: 0.3,
+      '--wght': 100,
+      '--wdth': 25,
+      opacity: 0.3,
+    },
+  },
+  hover: {
+    on: {
+      duration: 0.3,
+      '--slnt': -10,
+    },
+    off: {
+      duration: 0.3,
+      '--slnt': 0,
+    },
+  },
+}
+
+function activateTitle(target: Element | null, type: 'on' | 'off') {
+  gsap.to(target, {
+    ...PARAMS.activate[type],
+  })
+}
+
+function hoverTitle(target: Element | EventTarget | null, type: 'on' | 'off') {
+  gsap.to(target, {
+    ...PARAMS.hover[type],
+  })
 }

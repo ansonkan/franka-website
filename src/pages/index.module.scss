@@ -6,13 +6,14 @@
 }
 
 .work {
-  font-weight: 100;
-  font-size: 10vw;
+  font-size: 6vw;
+  font-variation-settings: 'wght' var(--wght, 100), 'wdth' var(--wdth, 25),
+    'slnt' var(--slnt, 0);
   white-space: nowrap;
-  will-change: transform;
+  opacity: 0.3;
 
   @include desktop {
-    font-size: min(10vw, 80px);
+    font-size: min(6vw, 40px);
   }
 }
 
@@ -22,5 +23,5 @@
   border: 1px red solid;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10000;
+  z-index: -1;
 }
