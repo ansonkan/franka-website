@@ -1,5 +1,7 @@
 import { GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
+import Image from 'next/image'
+import Link from 'next/link'
 import cn from 'clsx'
 import gsap from 'gsap'
 import { robotoFlex } from '@/fonts'
@@ -8,15 +10,28 @@ import { useRect } from '@studio-freight/hamo'
 import { useRef } from 'react'
 import { useScroll } from '@/lib/use-scroll'
 import { useWindowSize } from 'react-use'
+import { mapRange } from '@/lib/maths'
+
+interface Collection {
+  title: string
+  thumbnail: {
+    width: number
+    height: number
+    url: string
+  }
+}
 
 interface IndexProps {
-  selectedWorks: string[]
+  selectedWorks: Collection[]
 }
 
 const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
   const activeIndex = useRef<number | null>(null)
-  const listRef = useRef<HTMLDivElement | null>(null)
+  const listRef = useRef<HTMLElement | null>(null)
   const [listRectRef, listRect] = useRect()
+
+  const previewRef = useRef<HTMLUListElement | null>(null)
+  const [previewRectRef, previewRect] = useRect()
 
   const { height: windowHeight } = useWindowSize()
 
@@ -25,13 +40,19 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
   const scrollHeight = windowHeight + total
 
   useScroll(({ scroll }) => {
-    if (!listRect || !listRef.current) return
+    if (!listRect || !listRef.current || !previewRect || !previewRef.current)
+      return
 
-    gsap.to(listRef.current, {
-      translateY: (windowHeight - itemHeight) / 2 - scroll,
-      ease: 'none',
-      duration: 0,
-    })
+    listRef.current.style.transform = `translateY(${
+      (windowHeight - itemHeight) / 2 - scroll
+    }px)`
+
+    previewRef.current.style.transform = `translateY(${
+      previewRect.height * -1 +
+      windowHeight / 2 +
+      windowHeight / 3 / 2 +
+      mapRange(0, total, scroll, 0, previewRect.height - windowHeight / 3)
+    }px)`
 
     const newActiveIndex = Math.round(scroll / itemHeight)
 
@@ -57,55 +78,104 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className={s.center} style={{ height: itemHeight || 'auto' }} />
+      <div className={s.center} style={{ height: itemHeight || 'auto' }}>
+        {/* {process.env.NODE_ENV === 'development' && <div className={s.debug} />} */}
+      </div>
 
       <div style={{ height: scrollHeight || 'auto' }} />
 
-      <div
+      <ul
+        className={s.preview}
+        ref={(node) => {
+          previewRef.current = node
+          previewRectRef(node)
+        }}
+      >
+        {[...selectedWorks].reverse().map(({ title, thumbnail }, i) => {
+          return (
+            <li key={i} className={s.thumbnail}>
+              <Image
+                src={thumbnail.url}
+                fill
+                alt={title}
+                quality={40}
+                priority
+                loading="eager"
+              />
+            </li>
+          )
+        })}
+      </ul>
+
+      <ul
         ref={(node) => {
           listRef.current = node
           listRectRef(node)
         }}
         className={s.list}
       >
-        {selectedWorks.map((title, i) => (
-          <h2
-            key={i}
-            className={cn(s.work, robotoFlex.className)}
-            onMouseEnter={(event) => {
-              hoverTitle(event.target, 'on')
-            }}
-            onMouseLeave={(event) => {
-              hoverTitle(event.target, 'off')
-            }}
-          >
-            {title}
-          </h2>
+        {selectedWorks.map(({ title }, i) => (
+          <li key={i}>
+            <Link href="/">
+              <h2
+                className={cn(s.title, robotoFlex.className)}
+                onMouseEnter={(event) => {
+                  hoverTitle(event.target, 'on')
+                }}
+                onMouseLeave={(event) => {
+                  hoverTitle(event.target, 'off')
+                }}
+              >
+                {title}
+              </h2>
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </main>
   )
 }
 
 export default Index
 
-export const getStaticProps: GetStaticProps<IndexProps> = () => {
+export const getStaticProps: GetStaticProps<IndexProps> = async () => {
+  const res = await fetch(
+    `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
+    {
+      method: 'POST', // GraphQL *always* uses POST requests!
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`, // add our access token header
+      },
+      // send the query we wrote in GraphiQL as a string
+      body: JSON.stringify({
+        // all requests start with "query: ", so we'll stringify that for convenience
+        query: `
+        {
+          collectionCollection {
+            items {
+              sys {
+                id
+              }
+              title
+              thumbnail {
+                width
+                height
+                url
+              }
+            }
+          }
+        }
+      `,
+      }),
+    }
+  )
+
+  const data = await res.json()
+
   return {
     props: {
-      selectedWorks: [
-        'Franka',
-        'Hong Kong',
-        'Sunset',
-        'Island',
-        'Very Loooooooooooong Title',
-        'Testing out Ä ä Ö ö Ü ü ß',
-        'Second time',
-        'Hong Kong',
-        'Sunset',
-        'Island',
-        'Very Loooooooooooong Title',
-        'Testing out Ä ä Ö ö Ü ü ß',
-      ],
+      selectedWorks: data.data.collectionCollection.items,
     },
   }
 }
@@ -116,13 +186,13 @@ const PARAMS = {
       duration: 0.15,
       '--wght': 1000,
       '--wdth': 100,
-      opacity: 1,
+      '--opacity': 1,
     },
     off: {
       duration: 0.3,
       '--wght': 100,
       '--wdth': 25,
-      opacity: 0.3,
+      '--opacity': 0.2,
     },
   },
   hover: {
@@ -137,13 +207,15 @@ const PARAMS = {
   },
 }
 
-function activateTitle(target: Element | null, type: 'on' | 'off') {
+type Target = Element | EventTarget | null
+
+function activateTitle(target: Target, type: 'on' | 'off') {
   gsap.to(target, {
     ...PARAMS.activate[type],
   })
 }
 
-function hoverTitle(target: Element | EventTarget | null, type: 'on' | 'off') {
+function hoverTitle(target: Target, type: 'on' | 'off') {
   gsap.to(target, {
     ...PARAMS.hover[type],
   })

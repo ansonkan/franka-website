@@ -13,6 +13,10 @@ const nextConfig = {
    * However, the official next + r3f starter (https://github.com/pmndrs/react-three-next) doesn't have that setup
    */
   // transpilePackages: ['three'],
+  images: {
+    loader: 'custom',
+    loaderFile: './src/lib/contentful-image-loader.ts',
+  },
 }
 
 module.exports = withBundleAnalyzer(nextConfig)
