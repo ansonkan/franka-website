@@ -46,18 +46,24 @@
   position: fixed;
   z-index: -1;
   top: 0;
-  right: 0;
+  right: 5%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   will-change: transform;
+  gap: 1vh;
+
+  @include desktop {
+    right: 15%;
+  }
 
   .thumbnail {
     position: relative;
     top: 0;
     right: 0;
     width: 100vw;
-    height: calc(100vh / 3);
+    height: calc(100vh / 6);
+    will-change: transform;
 
     display: flex;
     align-items: flex-end;

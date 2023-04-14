@@ -25,7 +25,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    const lenis = new Lenis()
+    const lenis = new Lenis({ duration: 2 })
     setLenis(lenis)
 
     return () => {

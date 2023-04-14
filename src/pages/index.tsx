@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { GetStaticProps, NextPage } from 'next'
+import { useCallback, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -9,7 +10,6 @@ import { mapRange } from '@/lib/maths'
 import { robotoFlex } from '@/fonts'
 import s from './index.module.scss'
 import { useRect } from '@studio-freight/hamo'
-import { useRef } from 'react'
 import { useScroll } from '@/lib/use-scroll'
 import { useWindowSize } from 'react-use'
 
@@ -34,25 +34,60 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
   const previewRef = useRef<HTMLUListElement | null>(null)
   const [previewRectRef, previewRect] = useRect()
 
+  const initialized = useRef(false)
+
   const { height: windowHeight } = useWindowSize()
 
   const itemHeight = listRect.height / selectedWorks.length
   const total = listRect.height - itemHeight
   const scrollHeight = windowHeight + total
 
+  const previewActiveItemHeight = windowHeight / 1.8
+  const previewNormalItemHeight = windowHeight / 6
+  const previewHeight =
+    previewActiveItemHeight +
+    (selectedWorks.length - 1) * (windowHeight * 0.01 + previewNormalItemHeight)
+  const quickToMap = useRef<Map<gsap.TweenTarget, gsap.QuickToFunc>>(new Map())
+  const getThumbnailQuickTo = useCallback((target: gsap.TweenTarget) => {
+    if (!quickToMap.current.has(target)) {
+      quickToMap.current.set(target, gsap.quickTo(target, 'height', {}))
+    }
+
+    return quickToMap.current.get(target)!
+  }, [])
+
+  useEffect(() => {
+    if (!previewRef.current || initialized.current) return
+
+    gsap.set(previewRef.current.children.item(selectedWorks.length - 1), {
+      height: windowHeight / 1.8,
+    })
+
+    initialized.current = true
+  }, [selectedWorks.length, windowHeight])
+
   useScroll(({ scroll }) => {
-    if (!listRect || !listRef.current || !previewRect || !previewRef.current)
+    if (
+      !initialized.current ||
+      !listRect ||
+      !listRef.current ||
+      !previewRect ||
+      !previewRef.current
+    ) {
       return
+    }
 
     listRef.current.style.transform = `translateY(${
       (windowHeight - itemHeight) / 2 - scroll
     }px)`
 
+    const activePreviewItemHeight = windowHeight / 1.8
+
     previewRef.current.style.transform = `translateY(${
-      previewRect.height * -1 +
+      previewHeight * -1 +
       windowHeight / 2 +
-      windowHeight / 3 / 2 +
-      mapRange(0, total, scroll, 0, previewRect.height - windowHeight / 3)
+      activePreviewItemHeight / 2 +
+      mapRange(0, total, scroll, 0, previewHeight - activePreviewItemHeight)
     }px)`
 
     const newActiveIndex = Math.round(scroll / itemHeight)
@@ -62,8 +97,20 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
     if (newActiveIndex !== activeIndex.current) {
       activateTitle(listRef.current.children.item(newActiveIndex), 'on')
 
+      getThumbnailQuickTo(
+        previewRef.current.children.item(
+          selectedWorks.length - newActiveIndex - 1
+        )
+      )(previewActiveItemHeight)
+
       if (typeof activeIndex.current === 'number') {
         activateTitle(listRef.current.children.item(activeIndex.current), 'off')
+
+        getThumbnailQuickTo(
+          previewRef.current.children.item(
+            selectedWorks.length - activeIndex.current - 1
+          )
+        )(previewNormalItemHeight)
       }
 
       activeIndex.current = newActiveIndex
