@@ -47,14 +47,15 @@ body {
   padding-bottom: 0;
   position: sticky;
   top: 0;
+  z-index: -100;
 
   .title {
+    // z-index: -100;
     grid-column: 1 / span 6;
     font-size: 10vw;
     line-height: 0.75;
     font-variation-settings: 'wght' 1000, 'wdth' 151, 'opsz' 144, 'XTRA' 603;
     word-break: break-all;
-    z-index: -1;
   }
 }
 
@@ -82,7 +83,7 @@ body {
   left: 0;
   right: 0;
   padding: var(--padding);
-  z-index: 100;
+  z-index: 1000;
 
   .link {
     align-self: end;
