@@ -1,16 +1,90 @@
 @import './_variables.scss';
 @import './_functions.scss';
 
+:root {
+  --padding: 5px;
+}
+
 // https://github.com/studio-freight/lenis/tree/main#hide-overflow-when-lenis-is-stopped
 html.lenis-stopped {
   overflow: hidden;
 }
 
-html,
-body {
-  overscroll-behavior-y: none;
-}
+// this causes a slight lag on mac safari
+// html,
+// body {
+//   overscroll-behavior-y: none;
+// }
 
 body {
   min-height: 100vh;
+}
+
+.roboto-flex {
+  &,
+  h1 {
+    font-size: 10vw;
+    font-variation-settings: 'wght' 1000, 'wdth' 151, 'opsz' 144, 'XTRA' 603;
+    word-break: break-all;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  // gap: 2vw;
+
+  .span-all {
+    grid-column: 1 / span 6;
+  }
+}
+
+.top {
+  @extend .grid;
+  gap: 2vw;
+  width: 100vw;
+  padding: var(--padding);
+  padding-bottom: 0;
+  position: sticky;
+  top: 0;
+
+  .title {
+    grid-column: 1 / span 6;
+    font-size: 10vw;
+    line-height: 0.75;
+    font-variation-settings: 'wght' 1000, 'wdth' 151, 'opsz' 144, 'XTRA' 603;
+    word-break: break-all;
+    z-index: -1;
+  }
+}
+
+.middle {
+  @extend .grid;
+  width: 100vw;
+  gap: 0 2vw;
+  // to avoid links at the bottom
+  padding: 0 var(--padding) 100px var(--padding);
+  align-items: start;
+}
+
+.bottom {
+  // @extend .grid;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  @include desktop {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  gap: 2vw;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--padding);
+  z-index: 100;
+
+  .link {
+    align-self: end;
+  }
 }

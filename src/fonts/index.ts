@@ -4,7 +4,7 @@ import localFont from 'next/font/local'
 export const robotoFlex = Roboto_Flex({
   style: ['normal'],
   subsets: ['latin'],
-  axes: ['wdth', 'slnt'],
+  axes: ['wdth', 'slnt', 'opsz', 'XTRA'],
 })
 
 export const emberly = localFont({

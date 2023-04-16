@@ -1,83 +1,23 @@
 @import '@/styles/_functions.scss';
 
-.list {
-  position: fixed;
-  top: 0;
-  left: 5%;
-  will-change: transform;
+.thumbnail {
+  position: relative;
+  margin-bottom: 2vw;
+  overflow: hidden;
 
-  @include desktop {
-    left: 15%;
-  }
+  img {
+    object-fit: contain;
 
-  .title {
-    font-size: 6vw;
-    font-variation-settings: 'wght' var(--wght, 100), 'wdth' var(--wdth, 25),
-      'slnt' var(--slnt, 0);
-    white-space: nowrap;
-    opacity: var(--opacity, 0.2);
-    mix-blend-mode: color-dodge;
+    height: auto !important;
+    width: auto !important;
+    filter: grayscale(1);
+    transition: all 0.6s;
 
-    @include desktop {
-      font-size: min(6vw, 40px);
-    }
-  }
-}
-
-.center {
-  position: fixed;
-  width: 100%;
-  border-bottom: 1px black solid;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: -10;
-
-  .debug {
-    position: absolute;
-    top: 50%;
-    width: 100vw;
-    height: 1px;
-    background: red;
-    z-index: -1000;
-  }
-}
-
-.preview {
-  position: fixed;
-  z-index: -1;
-  top: 0;
-  right: 5%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  will-change: transform;
-  gap: 1vh;
-
-  @include desktop {
-    right: 15%;
-  }
-
-  .thumbnail {
-    position: relative;
-    top: 0;
-    right: 0;
-    width: 100vw;
-    height: calc(100vh / 6);
-    will-change: transform;
-
-    display: flex;
-    align-items: flex-end;
-
-    img {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      height: 100%;
-      object-fit: contain;
-      width: auto !important;
-      margin-left: auto;
-      filter: #{'grayscale(var(--grayscale, 100%))'};
+    @include hover {
+      &:hover {
+        filter: grayscale(0);
+        transform: scale(1.05);
+      }
     }
   }
 }

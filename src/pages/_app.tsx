@@ -2,15 +2,18 @@ import 'the-new-css-reset/css/reset.css'
 import '@/styles/globals.scss'
 import type { AppProps } from 'next/app'
 import Lenis from '@studio-freight/lenis'
+import Link from 'next/link'
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger'
 import { gsap } from 'gsap'
 import { raf } from '@studio-freight/tempus'
+import { robotoFlex } from '@/fonts'
 import { useEffect } from 'react'
 import { useFrame } from '@studio-freight/hamo'
 import { useStore } from '@/lib/use-store'
 
 if (typeof window !== 'undefined') {
-  // gsap.registerPlugin(ScrollTrigger)
-  // ScrollTrigger.defaults({ markers: process.env.NODE_ENV === 'development' })
+  gsap.registerPlugin(ScrollTrigger)
+  ScrollTrigger.defaults({ markers: process.env.NODE_ENV === 'development' })
 
   // merge rafs
   gsap.ticker.lagSmoothing(0)
@@ -25,7 +28,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    const lenis = new Lenis({ duration: 2 })
+    const lenis = new Lenis({ duration: 1.5 })
     setLenis(lenis)
 
     return () => {
@@ -39,5 +42,23 @@ export default function App({ Component, pageProps }: AppProps) {
     lenis?.raf(time)
   })
 
-  return <Component {...pageProps} />
+  return (
+    <div className={robotoFlex.className}>
+      <Component {...pageProps} />
+
+      <nav className="bottom">
+        <Link href="/" className="link">
+          Home
+        </Link>
+
+        <Link href="/" className="link">
+          All works (6)
+        </Link>
+
+        <Link href="/" className="link">
+          About
+        </Link>
+      </nav>
+    </div>
+  )
 }
