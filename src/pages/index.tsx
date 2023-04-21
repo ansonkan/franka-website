@@ -1,19 +1,15 @@
 import { GetStaticProps, NextPage } from 'next'
-import { Fragment } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 // import Link from 'next/link'
+import { useLayoutEffect, useRef } from 'react'
 import cn from 'clsx'
-// import gsap from 'gsap'
-import { robotoFlex } from '@/fonts'
+import { emberly } from '@/fonts'
+import gsap from 'gsap'
 import s from './index.module.scss'
 
-const colCount = 6
-const portraitColSpan = 3
-const landscapeColSpan = 4
-
 const TEXT =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
 
 interface Collection {
   title: string
@@ -21,9 +17,6 @@ interface Collection {
     width: number
     height: number
     url: string
-    // for grid col span
-    start: number
-    span: number
   }
 }
 
@@ -32,8 +25,41 @@ interface IndexProps {
 }
 
 const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
+  const rootRef = useRef<HTMLElement>(null)
+  const hasSetup = useRef(false)
+
+  useLayoutEffect(() => {
+    if (hasSetup.current) return
+
+    // const tls: gsap.core.Timeline[] = []
+
+    const items = gsap.utils.toArray<HTMLImageElement>(`.${s.item}`)
+
+    items.forEach((item) => {
+      const tl = gsap.timeline({ scrollTrigger: { trigger: item } })
+      // tls.push(tl)
+      tl.from(item.querySelector('img'), {
+        x: '100%',
+        y: '100%',
+        ease: 'expo',
+        rotation: -45,
+        scrollTrigger: {
+          trigger: item,
+        },
+      })
+      tl.from(item.querySelector(`.${s.title}`), { opacity: 0 })
+    })
+
+    hasSetup.current = true
+
+    // return () => {
+    //   console.log('clean up layout effect')
+    //   // tls.forEach((tl) => tl.revert())
+    // }
+  }, [])
+
   return (
-    <main style={{ display: 'flex', flexDirection: 'column', gap: '2vw' }}>
+    <main ref={rootRef}>
       <Head>
         <title>Franka</title>
         <meta name="description" content="Franka" />
@@ -41,51 +67,44 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="top">
-        <Header className="title">Franka Zweydinger</Header>
+      <div className={s.root}>
+        <div className={s.right}>
+          <div className={s.info}>
+            <h1 className={cn(s.header, emberly.className)}>Franka Zwy</h1>
 
-        {[TEXT, TEXT].map((t, i) => (
-          <p
-            key={i}
-            style={{
-              gridColumn: `${i % 2 === 0 ? 1 : 4} / span 2`,
-            }}
-          >
-            {t}
-          </p>
-        ))}
-      </div>
+            <p className={s.description}>{TEXT}</p>
+          </div>
+        </div>
 
-      <div className="middle">
-        {selectedWorks.map(({ title, thumbnail }, i) => {
-          const { url, start, span, width, height } = thumbnail
-          // const isPortrait = height > width
-
-          return (
-            <Fragment key={i}>
+        <div className={s.works}>
+          {selectedWorks.map(({ title, thumbnail }, i) => (
+            <div key={i} className={s.item}>
               <div
-                key={i}
                 className={s.thumbnail}
-                style={{
-                  gridColumn: `${start} / span ${span}`,
-                  aspectRatio: width / height,
-                }}
+                style={{ aspectRatio: thumbnail.width / thumbnail.height }}
               >
                 <Image
-                  src={url}
+                  src={thumbnail.url}
                   fill
                   alt={title}
-                  quality={15}
+                  sizes="50vw"
                   priority
-                  // style={{
-                  //   marginLeft: Math.random() > 0.5 ? 'auto' : 0,
-                  // }}
                 />
               </div>
-              <div className="span-all" />
-            </Fragment>
-          )
-        })}
+
+              <h2
+                className={s.title}
+                style={{
+                  maxWidth: `calc(50vw * ${
+                    thumbnail.height / thumbnail.width
+                  })`,
+                }}
+              >
+                {title}
+              </h2>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   )
@@ -142,72 +161,17 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
     }
   } = await res.json()
 
-  let lastStartCol = -1
-  let lastEndCol = -1
-
-  const getColSpan = (isPortrait: boolean) => {
-    const span = isPortrait ? portraitColSpan : landscapeColSpan
-    let start = -1
-    let end = -1
-
-    do {
-      start = Math.round(Math.random() * (colCount - span)) + 1
-      end = start + span - 1
-    } while (start === lastStartCol || end === lastEndCol)
-    // } while (start >= lastEndCol || end <= lastStartCol)
-
-    lastStartCol = start
-    lastEndCol = end
-
-    return { start, end, span }
-  }
-
-  const selectedWorks = data.data.collectionCollection.items.map(
-    ({ thumbnail, ...others }) => {
-      return {
-        thumbnail: {
-          ...thumbnail,
-          ...getColSpan(thumbnail.height > thumbnail.width),
-        },
-        ...others,
-      }
-    }
-  )
-
   return {
     props: {
-      selectedWorks,
+      selectedWorks: [
+        ...data.data.collectionCollection.items,
+        ...data.data.collectionCollection.items,
+        ...data.data.collectionCollection.items,
+        ...data.data.collectionCollection.items,
+        ...data.data.collectionCollection.items,
+        ...data.data.collectionCollection.items,
+        ...data.data.collectionCollection.items,
+      ],
     },
   }
-}
-
-interface HeaderProps {
-  children?: string
-  className?: string
-}
-
-function Header({ children, className }: HeaderProps) {
-  const _cn = cn(robotoFlex.className, 'roboto-flex', className)
-
-  if (!children) return <h1 className={_cn} />
-
-  const words = children
-    .trim()
-    .split(' ')
-    .filter((c) => !!c)
-
-  return (
-    <h1 className={_cn} style={{ display: 'flex', flexDirection: 'column' }}>
-      {words.map((w, i) => (
-        <span
-          key={i}
-          style={{
-            alignSelf: i === words.length - 1 ? 'flex-end' : 'flex-start',
-          }}
-        >
-          {w}
-        </span>
-      ))}
-    </h1>
-  )
 }

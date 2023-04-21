@@ -1,22 +1,52 @@
 @import '@/styles/_functions.scss';
 
-.thumbnail {
-  position: relative;
-  margin-bottom: 2vw;
-  overflow: hidden;
+.right {
+  padding-left: var(--space);
+  padding-right: calc(var(--space) * 2);
 
-  img {
-    object-fit: contain;
+  .info {
+    position: sticky;
+    top: var(--space);
 
-    height: auto !important;
-    width: auto !important;
-    filter: grayscale(1);
-    transition: all 0.6s;
+    .header {
+      font-size: 50px;
+    }
+  }
+}
 
-    @include hover {
-      &:hover {
-        filter: grayscale(0);
-        transform: scale(1.05);
+.root {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  padding: var(--space) 0;
+
+  .works {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .item {
+      position: relative;
+      width: 100%;
+
+      .thumbnail {
+        position: relative;
+        filter: grayscale(1);
+        overflow: hidden;
+      }
+
+      .title {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform-origin: top left;
+        transform: rotate(90deg);
+        opacity: 0.2;
+        font-size: 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
   }
