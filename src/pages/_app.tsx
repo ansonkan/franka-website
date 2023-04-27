@@ -1,12 +1,12 @@
 import 'the-new-css-reset/css/reset.css'
 import '@/styles/globals.scss'
+import { emberly, robotoFlex } from '@/fonts'
 import type { AppProps } from 'next/app'
 import Lenis from '@studio-freight/lenis'
-import Link from 'next/link'
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger'
+import cn from 'clsx'
 import { gsap } from 'gsap'
 import { raf } from '@studio-freight/tempus'
-import { robotoFlex } from '@/fonts'
 import { useEffect } from 'react'
 import { useFrame } from '@studio-freight/hamo'
 import { useStore } from '@/lib/use-store'
@@ -44,21 +44,13 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <div className={robotoFlex.className}>
+      <header>
+        <nav>
+          <div className={cn(emberly.className, 'name')}>Franka Zwy</div>
+        </nav>
+      </header>
+
       <Component {...pageProps} />
-
-      <nav className="bottom">
-        <Link href="/" className="link">
-          Home
-        </Link>
-
-        <Link href="/" className="link">
-          All works (6)
-        </Link>
-
-        <Link href="/" className="link">
-          About
-        </Link>
-      </nav>
     </div>
   )
 }

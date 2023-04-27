@@ -1,16 +1,15 @@
 import { GetStaticProps, NextPage } from 'next'
-import { Fragment } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
+import contentfulLoader from '@/lib/contentful-loader'
 // import Link from 'next/link'
+import { memo } from 'react'
 import cn from 'clsx'
-// import gsap from 'gsap'
-import { robotoFlex } from '@/fonts'
+import gsap from 'gsap'
+import { emberly } from '@/fonts'
 import s from './index.module.scss'
-
-const colCount = 6
-const portraitColSpan = 3
-const landscapeColSpan = 4
+import { random, randomInt } from '@/lib/maths'
 
 const TEXT =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
@@ -21,9 +20,6 @@ interface Collection {
     width: number
     height: number
     url: string
-    // for grid col span
-    start: number
-    span: number
   }
 }
 
@@ -32,8 +28,101 @@ interface IndexProps {
 }
 
 const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
+  const landingSectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!landingSectionRef.current) return
+
+    const createPreview = async () => {
+      return new Promise<HTMLImageElement>((resolve, reject) => {
+        if (!landingSectionRef.current) return
+
+        const containerW = landingSectionRef.current.clientWidth
+        const minW = containerW / 6
+        const maxW = containerW / 4
+
+        const work = selectedWorks[randomInt(0, selectedWorks.length)]
+        const w = randomInt(minW, maxW)
+
+        const img = document.createElement('img')
+        img.width = w
+        img.height = w * (work.thumbnail.height / work.thumbnail.width)
+        img.className = s.preview
+        img.onload = () => resolve(img)
+        img.onerror = (event) => reject(event)
+        img.src = contentfulLoader({
+          src: work.thumbnail.url,
+          width: w * 2,
+        })
+      })
+    }
+
+    const fadeDuration = 1
+    const translateDuration = 3
+    const translateDistance = 100
+
+    const loop = () => {
+      createPreview().then((img) => {
+        if (!landingSectionRef.current) return
+
+        const containerW = landingSectionRef.current.clientWidth
+        const containerH = landingSectionRef.current.clientHeight
+
+        landingSectionRef.current?.appendChild(img)
+
+        // img.style.translate = `translateY(100px)`
+        const y = random(
+          containerH / -2 + img.height / 2,
+          containerH / 2 - img.height / 2
+        )
+        gsap
+          .timeline({
+            onComplete: () => {
+              landingSectionRef.current?.removeChild(img)
+            },
+          })
+          .fromTo(img, { opacity: 0 }, { opacity: 1, duration: fadeDuration })
+          .fromTo(
+            img,
+            {
+              x: random(
+                containerW / -2 + img.width / 2,
+                containerW / 2 - img.width / 2 - translateDistance
+              ),
+              y,
+              // x: containerW / -2 + img.width / 2,
+              // x: containerW / 2 - img.width / 2 - 100,
+              // x: img.width / 2,
+            },
+            {
+              x: `+=${translateDistance}`,
+              duration: translateDuration,
+              ease: 'linear',
+            },
+            '<'
+          )
+          .to(img, { opacity: 0, duration: 1 }, `-=${fadeDuration}`)
+      })
+    }
+
+    // to fire this on mount but workaround multi renders of this `useEffect`
+    const timeout = setTimeout(loop, 0)
+    const interval = setInterval(
+      loop,
+      1000 * (translateDuration + fadeDuration)
+      // 1000
+    )
+
+    return () => {
+      clearTimeout(timeout)
+      clearInterval(interval)
+    }
+  }, [selectedWorks])
+
+  // const works = useMemo(() => selectedWorks, [])
+
   return (
-    <main style={{ display: 'flex', flexDirection: 'column', gap: '2vw' }}>
+    <main>
       <Head>
         <title>Franka</title>
         <meta name="description" content="Franka" />
@@ -41,52 +130,14 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="top">
-        <Header className="title">Franka Zweydinger</Header>
+      <section className={s.landing} ref={landingSectionRef}>
+        <div className={cn(emberly.className, s.title)}>
+          <div>Photographer</div>
+          <div>+ Designer</div>
+        </div>
 
-        {[TEXT, TEXT].map((t, i) => (
-          <p
-            key={i}
-            style={{
-              gridColumn: `${i % 2 === 0 ? 1 : 4} / span 2`,
-            }}
-          >
-            {t}
-          </p>
-        ))}
-      </div>
-
-      <div className="middle">
-        {selectedWorks.map(({ title, thumbnail }, i) => {
-          const { url, start, span, width, height } = thumbnail
-          // const isPortrait = height > width
-
-          return (
-            <Fragment key={i}>
-              <div
-                key={i}
-                className={s.thumbnail}
-                style={{
-                  gridColumn: `${start} / span ${span}`,
-                  aspectRatio: width / height,
-                }}
-              >
-                <Image
-                  src={url}
-                  fill
-                  alt={title}
-                  quality={15}
-                  priority
-                  // style={{
-                  //   marginLeft: Math.random() > 0.5 ? 'auto' : 0,
-                  // }}
-                />
-              </div>
-              <div className="span-all" />
-            </Fragment>
-          )
-        })}
-      </div>
+        {/* <Previews works={works} /> */}
+      </section>
     </main>
   )
 }
@@ -142,72 +193,38 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
     }
   } = await res.json()
 
-  let lastStartCol = -1
-  let lastEndCol = -1
-
-  const getColSpan = (isPortrait: boolean) => {
-    const span = isPortrait ? portraitColSpan : landscapeColSpan
-    let start = -1
-    let end = -1
-
-    do {
-      start = Math.round(Math.random() * (colCount - span)) + 1
-      end = start + span - 1
-    } while (start === lastStartCol || end === lastEndCol)
-    // } while (start >= lastEndCol || end <= lastStartCol)
-
-    lastStartCol = start
-    lastEndCol = end
-
-    return { start, end, span }
-  }
-
-  const selectedWorks = data.data.collectionCollection.items.map(
-    ({ thumbnail, ...others }) => {
-      return {
-        thumbnail: {
-          ...thumbnail,
-          ...getColSpan(thumbnail.height > thumbnail.width),
-        },
-        ...others,
-      }
-    }
-  )
-
   return {
     props: {
-      selectedWorks,
+      selectedWorks: data.data.collectionCollection.items,
     },
   }
 }
 
-interface HeaderProps {
-  children?: string
-  className?: string
-}
+// interface PreviewProps {
+//   work: Collection
+//   container: HTMLElement
+// }
 
-function Header({ children, className }: HeaderProps) {
-  const _cn = cn(robotoFlex.className, 'roboto-flex', className)
+// function Preview({ work: { title, thumbnail }, container }: PreviewProps) {
+//   const isReady = useRef(false)
+//   const
 
-  if (!children) return <h1 className={_cn} />
+//   const w = useMemo(() => {
+//     const minW = container.clientWidth / 8
+//     const maxW = container.clientWidth / 4
+//     return randomInt(minW, maxW)
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, [])
 
-  const words = children
-    .trim()
-    .split(' ')
-    .filter((c) => !!c)
+//   useEffect(() => {}, [isReady])
 
-  return (
-    <h1 className={_cn} style={{ display: 'flex', flexDirection: 'column' }}>
-      {words.map((w, i) => (
-        <span
-          key={i}
-          style={{
-            alignSelf: i === words.length - 1 ? 'flex-end' : 'flex-start',
-          }}
-        >
-          {w}
-        </span>
-      ))}
-    </h1>
-  )
-}
+//   return (
+//     <Image
+//       src={thumbnail.url}
+//       width={w}
+//       height={w * (thumbnail.height / thumbnail.width)}
+//       alt={title}
+//       onLoad={() => (isReady.current = true)}
+//     />
+//   )
+// }
