@@ -45,20 +45,6 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <div className={robotoFlex.className}>
       <Component {...pageProps} />
-
-      <nav className="bottom">
-        <Link href="/" className="link">
-          Home
-        </Link>
-
-        <Link href="/" className="link">
-          All works (6)
-        </Link>
-
-        <Link href="/" className="link">
-          About
-        </Link>
-      </nav>
     </div>
   )
 }

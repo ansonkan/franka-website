@@ -8,10 +8,6 @@ import cn from 'clsx'
 import { robotoFlex } from '@/fonts'
 import s from './index.module.scss'
 
-const colCount = 6
-const portraitColSpan = 3
-const landscapeColSpan = 4
-
 const TEXT =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
 
@@ -21,9 +17,6 @@ interface Collection {
     width: number
     height: number
     url: string
-    // for grid col span
-    start: number
-    span: number
   }
 }
 
@@ -40,53 +33,6 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <div className="top">
-        <Header className="title">Franka Zweydinger</Header>
-
-        {[TEXT, TEXT].map((t, i) => (
-          <p
-            key={i}
-            style={{
-              gridColumn: `${i % 2 === 0 ? 1 : 4} / span 2`,
-            }}
-          >
-            {t}
-          </p>
-        ))}
-      </div>
-
-      <div className="middle">
-        {selectedWorks.map(({ title, thumbnail }, i) => {
-          const { url, start, span, width, height } = thumbnail
-          // const isPortrait = height > width
-
-          return (
-            <Fragment key={i}>
-              <div
-                key={i}
-                className={s.thumbnail}
-                style={{
-                  gridColumn: `${start} / span ${span}`,
-                  aspectRatio: width / height,
-                }}
-              >
-                <Image
-                  src={url}
-                  fill
-                  alt={title}
-                  quality={15}
-                  priority
-                  // style={{
-                  //   marginLeft: Math.random() > 0.5 ? 'auto' : 0,
-                  // }}
-                />
-              </div>
-              <div className="span-all" />
-            </Fragment>
-          )
-        })}
-      </div>
     </main>
   )
 }
@@ -142,72 +88,9 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
     }
   } = await res.json()
 
-  let lastStartCol = -1
-  let lastEndCol = -1
-
-  const getColSpan = (isPortrait: boolean) => {
-    const span = isPortrait ? portraitColSpan : landscapeColSpan
-    let start = -1
-    let end = -1
-
-    do {
-      start = Math.round(Math.random() * (colCount - span)) + 1
-      end = start + span - 1
-    } while (start === lastStartCol || end === lastEndCol)
-    // } while (start >= lastEndCol || end <= lastStartCol)
-
-    lastStartCol = start
-    lastEndCol = end
-
-    return { start, end, span }
-  }
-
-  const selectedWorks = data.data.collectionCollection.items.map(
-    ({ thumbnail, ...others }) => {
-      return {
-        thumbnail: {
-          ...thumbnail,
-          ...getColSpan(thumbnail.height > thumbnail.width),
-        },
-        ...others,
-      }
-    }
-  )
-
   return {
     props: {
-      selectedWorks,
+      selectedWorks: data.data.collectionCollection.items,
     },
   }
-}
-
-interface HeaderProps {
-  children?: string
-  className?: string
-}
-
-function Header({ children, className }: HeaderProps) {
-  const _cn = cn(robotoFlex.className, 'roboto-flex', className)
-
-  if (!children) return <h1 className={_cn} />
-
-  const words = children
-    .trim()
-    .split(' ')
-    .filter((c) => !!c)
-
-  return (
-    <h1 className={_cn} style={{ display: 'flex', flexDirection: 'column' }}>
-      {words.map((w, i) => (
-        <span
-          key={i}
-          style={{
-            alignSelf: i === words.length - 1 ? 'flex-end' : 'flex-start',
-          }}
-        >
-          {w}
-        </span>
-      ))}
-    </h1>
-  )
 }
