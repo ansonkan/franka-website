@@ -15,7 +15,7 @@ const nextConfig = {
   // transpilePackages: ['three'],
   images: {
     loader: 'custom',
-    loaderFile: './src/lib/contentful-image-loader.ts',
+    loaderFile: './src/lib/contentful-loader.ts',
   },
 }
 
