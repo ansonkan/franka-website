@@ -2,7 +2,6 @@ import 'the-new-css-reset/css/reset.css'
 import '@/styles/globals.scss'
 import type { AppProps } from 'next/app'
 import Lenis from '@studio-freight/lenis'
-import Link from 'next/link'
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger'
 import { gsap } from 'gsap'
 import { raf } from '@studio-freight/tempus'
@@ -45,20 +44,6 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <div className={robotoFlex.className}>
       <Component {...pageProps} />
-
-      <nav className="bottom">
-        <Link href="/" className="link">
-          Home
-        </Link>
-
-        <Link href="/" className="link">
-          All works (6)
-        </Link>
-
-        <Link href="/" className="link">
-          About
-        </Link>
-      </nav>
     </div>
   )
 }
