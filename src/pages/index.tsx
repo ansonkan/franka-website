@@ -1,17 +1,17 @@
 import { GetStaticProps, NextPage } from 'next'
-import { Fragment } from 'react'
+import { useMemo, useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
-// import Link from 'next/link'
+import Link from 'next/link'
 import cn from 'clsx'
-// import gsap from 'gsap'
-import { robotoFlex } from '@/fonts'
+import { emberly } from '@/fonts'
+import { gql } from '@/lib/contentful-gql'
+import gsap from 'gsap'
 import s from './index.module.scss'
+import { useMediaQuery } from '@studio-freight/hamo'
 
-const TEXT =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-
-interface Collection {
+interface Work {
+  sys: { id: string }
   title: string
   thumbnail: {
     width: number
@@ -21,18 +21,92 @@ interface Collection {
 }
 
 interface IndexProps {
-  selectedWorks: Collection[]
+  selectedWorks: Work[]
 }
 
 const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
+  const isMd = useMediaQuery('(min-width: 800px)')
+  const isLg = useMediaQuery('(min-width: 1200px)')
+
+  const [title, setTitle] = useState('')
+
+  const galleryCols = useMemo(() => {
+    const getCols = (colCount = 1) => {
+      const columns: Array<Array<Work>> = []
+      for (let i = 0; i < colCount; i++) {
+        columns.push([])
+      }
+
+      for (let i = 0; i < selectedWorks.length; i++) {
+        columns[i % colCount].push(selectedWorks[i])
+      }
+
+      return columns
+    }
+
+    return {
+      base: getCols(2),
+      md: getCols(3),
+      lg: getCols(4),
+    }
+  }, [selectedWorks])
+
+  const breakpoint = useMemo(() => {
+    if (isLg) return 'lg'
+    if (isMd) return 'md'
+    return 'base'
+  }, [isLg, isMd])
+
   return (
-    <main style={{ display: 'flex', flexDirection: 'column', gap: '2vw' }}>
+    <main className={s.root}>
       <Head>
         <title>Franka</title>
         <meta name="description" content="Franka" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
+      <div className={s.gallery}>
+        {galleryCols[breakpoint].map((col, i) => (
+          <div key={i} className={s.column}>
+            {col.map(({ title, thumbnail, sys }, i) => (
+              <Link
+                key={i}
+                href={`/works/${sys.id}`}
+                className={s.imageWrapper}
+                style={{ aspectRatio: thumbnail.width / thumbnail.height }}
+                onMouseEnter={() => {
+                  setTitle(title)
+                  gsap.to(`.${s.title}`, { opacity: 1 })
+                }}
+                onMouseLeave={() => {
+                  gsap.to(`.${s.title}`, { opacity: 0 })
+                }}
+              >
+                <Image
+                  src={thumbnail.url}
+                  fill
+                  alt={title}
+                  sizes="(min-width: 800px) 20vw, 50vw"
+                />
+              </Link>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div className={cn(s.info, emberly.className)}>
+        <h1 className={cn(s.header)}>Franka</h1>
+
+        <div className={cn(s.titleWrapper)}>
+          <h2 className={cn(s.title)}>{title}</h2>
+        </div>
+
+        <nav className={cn(s.nav)}>
+          <Link href="/">About</Link>
+          <Link href="/">Contact</Link>
+        </nav>
+      </div>
     </main>
   )
 }
@@ -40,57 +114,39 @@ const Index: NextPage<IndexProps> = ({ selectedWorks }) => {
 export default Index
 
 export const getStaticProps: GetStaticProps<IndexProps> = async () => {
-  const res = await fetch(
-    `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
-    {
-      method: 'POST', // GraphQL *always* uses POST requests!
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`, // add our access token header
-      },
-      // send the query we wrote in GraphiQL as a string
-      body: JSON.stringify({
-        // all requests start with "query: ", so we'll stringify that for convenience
-        query: `
-        {
-          collectionCollection {
-            items {
-              sys {
-                id
-              }
-              title
-              thumbnail {
-                width
-                height
-                url
-              }
-            }
-          }
-        }
-      `,
-      }),
+  const { collectionCollection } = await gql<{
+    collectionCollection: {
+      items: Work[]
     }
-  )
-
-  const data: {
-    data: {
-      collectionCollection: {
-        items: Array<{
-          sys: { id: string }
-          title: string
-          thumbnail: {
-            width: number
-            height: number
-            url: string
-          }
-        }>
+  }>(`
+  {
+    collectionCollection {
+      items {
+        sys {
+          id
+        }
+        title
+        thumbnail {
+          width
+          height
+          url
+        }
       }
     }
-  } = await res.json()
+  }
+`)
 
   return {
     props: {
-      selectedWorks: data.data.collectionCollection.items,
+      selectedWorks: [
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+      ],
     },
   }
 }

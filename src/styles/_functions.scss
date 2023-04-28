@@ -1,14 +1,26 @@
 @import './_variables.scss';
 
 // Breakpoint
-@mixin mobile {
-  @media (max-width: #{$mobile-breakpoint}) {
+@mixin base {
+  @media (max-width: #{$md}) {
     @content;
   }
 }
 
-@mixin desktop {
-  @media (min-width: #{$mobile-breakpoint}) {
+@mixin md {
+  @media (min-width: #{$md}) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media (min-width: #{$lg}) {
+    @content;
+  }
+}
+
+@mixin landscape {
+  @media (min-aspect-ratio: 1/1) {
     @content;
   }
 }

@@ -1,1 +1,114 @@
 @import '@/styles/_functions.scss';
+
+.root {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 50vh auto;
+  grid-template-areas:
+    'info'
+    'gallery';
+  gap: var(--space);
+  padding: var(--space);
+
+  @include md {
+    @include landscape {
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: 1fr;
+      grid-template-areas: 'gallery info';
+    }
+  }
+
+  .info {
+    grid-area: info;
+    position: relative;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-areas:
+      'top'
+      'mid'
+      'bottom';
+
+    @include md {
+      @include landscape {
+        // `sticky` is really jank in Mac Safari somehow but `fixed` is working fine totally
+        // position: sticky;
+        position: fixed;
+        right: var(--space);
+        // offset the padding from its parent
+        top: var(--space);
+        height: calc(100vh - (2 * var(--space)));
+        width: calc((100vw / 3) - var(--space));
+      }
+    }
+
+    .header {
+      grid-area: top;
+    }
+
+    .titleWrapper {
+      grid-area: mid;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .title {
+        text-align: center;
+        font-weight: 700;
+        font-size: xx-large;
+        word-break: break-all;
+        opacity: 0;
+      }
+    }
+
+    .nav {
+      grid-area: bottom;
+      justify-self: end;
+      align-self: end;
+      display: flex;
+      flex-direction: column;
+
+      & > a {
+        text-align: right;
+        font-style: italic;
+      }
+    }
+  }
+
+  .gallery {
+    grid-area: gallery;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    gap: var(--space);
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space);
+      flex-grow: 1;
+
+      .imageWrapper {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+
+        img {
+          filter: grayscale(1);
+          transition: all 0.5s ease;
+
+          &:hover {
+            @include hover {
+              filter: grayscale(0);
+              transform: scale(1.05);
+            }
+          }
+        }
+      }
+    }
+  }
+}

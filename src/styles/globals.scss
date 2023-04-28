@@ -2,7 +2,13 @@
 @import './_functions.scss';
 
 :root {
-  --padding: 5px;
+  --sm: 4px;
+  --md: 8px;
+  --space: var(--sm);
+
+  @include md {
+    --space: var(--md);
+  }
 }
 
 // https://github.com/studio-freight/lenis/tree/main#hide-overflow-when-lenis-is-stopped
@@ -11,11 +17,7 @@ html.lenis-stopped {
 }
 
 // this causes a slight lag on mac safari
-// html,
-// body {
-//   overscroll-behavior-y: none;
-// }
-
+html,
 body {
-  min-height: 100vh;
+  overscroll-behavior-y: none;
 }
