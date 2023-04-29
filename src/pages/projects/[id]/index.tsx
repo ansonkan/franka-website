@@ -2,6 +2,8 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import { gql } from '@/lib/contentful-gql'
+import { useEffect } from 'react'
+import { useStore } from '@/lib/use-store'
 
 interface Project {
   sys: { id: string }
@@ -25,6 +27,12 @@ interface ProjectPageProps {
 }
 
 const ProjectPage: NextPage<ProjectPageProps> = ({ project }) => {
+  const lenis = useStore((state) => state.lenis)
+
+  useEffect(() => {
+    lenis?.scrollTo(0, { immediate: true })
+  }, [lenis])
+
   return (
     <main>
       <Head>

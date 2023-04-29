@@ -8,6 +8,7 @@ import gsap from 'gsap'
 import { mapRange } from '@/lib/maths'
 import s from './index.module.scss'
 import { useScroll } from '@/lib/use-scroll'
+import { useStore } from '@/lib/use-store'
 
 interface Project {
   sys: { id: string }
@@ -28,6 +29,8 @@ const GALLERY_GAP = '5vw'
 const PARALLAX_DISTANCE = 100
 
 const Index: NextPage<IndexProps> = ({ projects }) => {
+  const lenis = useStore((state) => state.lenis)
+
   const galleryRef = useRef<HTMLDivElement>(null)
   const parallaxs = useRef<HTMLDivElement[] | undefined>()
 
@@ -38,6 +41,10 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
       return ar < acc ? ar : acc
     }, Infinity)
   }, [projects])
+
+  useEffect(() => {
+    lenis?.scrollTo(0, { immediate: true })
+  }, [lenis])
 
   useEffect(() => {
     parallaxs.current = []
