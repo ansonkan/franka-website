@@ -8,8 +8,8 @@ dependencies:
     specifier: 0.6.12
     version: 0.6.12(react-dom@18.2.0)(react@18.2.0)
   '@studio-freight/lenis':
-    specifier: 1.0.6
-    version: 1.0.6
+    specifier: 1.0.11
+    version: 1.0.11
   '@studio-freight/tempus':
     specifier: 0.0.36
     version: 0.0.36
@@ -338,8 +338,8 @@ packages:
       throttle-debounce: 5.0.0
     dev: false
 
-  /@studio-freight/lenis@1.0.6:
-    resolution: {integrity: sha512-g/cTDwra/6WsCGK6KTyfOlTAwJA5xFCJtRFNGM+Ge/oIOg2emLJKV+yTFATekjuCX4r7W5tcBp8LcQ2b+P6yuQ==}
+  /@studio-freight/lenis@1.0.11:
+    resolution: {integrity: sha512-N4VpYVXQS0BhbExl9CADyPp3vmRb2p4JME+exdguT/OrYTprkUv13BQODtryR/QebWS36n/NKgic5lVBMMa4+A==}
     dev: false
 
   /@studio-freight/tempus@0.0.36:

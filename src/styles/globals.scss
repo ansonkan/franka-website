@@ -5,16 +5,29 @@
   --padding: 5px;
 }
 
-// https://github.com/studio-freight/lenis/tree/main#hide-overflow-when-lenis-is-stopped
-html.lenis-stopped {
+html {
+  scrollbar-width: thin;
+}
+
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
   overflow: hidden;
 }
 
-// this causes a slight lag on mac safari
-// html,
-// body {
-//   overscroll-behavior-y: none;
-// }
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
 
 body {
   min-height: 100vh;
