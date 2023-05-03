@@ -3,20 +3,26 @@ import { useEffect, useMemo, useRef } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import cn from 'clsx'
 import { gql } from '@/lib/contentful-gql'
 import gsap from 'gsap'
 import { mapRange } from '@/lib/maths'
 import s from './index.module.scss'
+import { useRect } from '@studio-freight/hamo'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
 
+type Photo = {
+  url: string
+  width: number
+  height: number
+}
 interface Project {
   sys: { id: string }
   title: string
-  thumbnail: {
-    width: number
-    height: number
-    url: string
+  thumbnail: Photo
+  photosCollection: {
+    items: Photo[]
   }
 }
 
@@ -24,70 +30,31 @@ interface IndexProps {
   projects: Project[]
 }
 
-const IMG_HEIGHT = 'min(75vh, 90vw)'
-const GALLERY_GAP = '5vw'
-const PARALLAX_DISTANCE = 100
-
 const Index: NextPage<IndexProps> = ({ projects }) => {
-  const lenis = useStore((state) => state.lenis)
-
-  const galleryRef = useRef<HTMLDivElement>(null)
-  const parallaxs = useRef<HTMLDivElement[] | undefined>()
-
-  const minAR = useMemo(() => {
-    return projects.reduce((acc, { thumbnail: { width, height } }) => {
-      const ar = width / height
-
-      return ar < acc ? ar : acc
-    }, Infinity)
-  }, [projects])
-
-  useEffect(() => {
-    lenis?.scrollTo(0, { immediate: true })
-  }, [lenis])
-
-  useEffect(() => {
-    parallaxs.current = []
-    galleryRef.current
-      ?.querySelectorAll<HTMLDivElement>(`.${s.parallax}`)
-      .forEach((item) => {
-        parallaxs.current?.push(item)
-      })
-
-    gsap.to(parallaxs.current, {
-      x: '-50%',
-      ease: 'none',
-      duration: 0,
-    })
-  }, [])
+  const [sampleRectRef, sampleRect] = useRect()
+  const scrollDivRef = useRef<HTMLDivElement>(null)
+  const linksRef = useRef<HTMLUListElement>(null)
+  const gotosRef = useRef<HTMLUListElement>(null)
 
   useScroll(({ scroll }) => {
-    const screenWidth = window.innerWidth
+    if (
+      !scrollDivRef.current ||
+      !sampleRect ||
+      !gotosRef.current ||
+      !linksRef.current
+    )
+      return
 
-    if (parallaxs.current) {
-      for (const item of parallaxs.current) {
-        const { left, width } = item.getBoundingClientRect()
+    scrollDivRef.current.style.setProperty(
+      'height',
+      `${window.innerHeight + sampleRect.height * (projects.length - 1) * 2}px`
+    )
 
-        if (left + width <= 0) continue
-        if (left > screenWidth) break
-
-        gsap.to(item, {
-          x:
-            mapRange(
-              screenWidth,
-              -width,
-              left,
-              -(PARALLAX_DISTANCE / 2),
-              PARALLAX_DISTANCE / 2
-            ) -
-            width / 2,
-          ease: 'none',
-          duration: 0,
-        })
-      }
-    }
-
-    gsap.to(galleryRef.current, { x: -scroll, ease: 'none', duration: 0 })
+    gsap.to([linksRef.current, gotosRef.current], {
+      y: -scroll / 2,
+      duration: 0,
+      ease: 'none',
+    })
   })
 
   return (
@@ -99,51 +66,31 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div
-        style={{
-          height: `calc(100vh + ${projects.length - 1} * ((${IMG_HEIGHT} / ${
-            1 / minAR
-          }) - ${PARALLAX_DISTANCE}px + ${GALLERY_GAP}))`,
-        }}
-      />
+      <div ref={scrollDivRef} />
 
       <div className={s.base}>
-        <div
-          className={s.gallery}
-          ref={galleryRef}
-          style={{
-            height: IMG_HEIGHT,
-            width: `calc((${IMG_HEIGHT} / ${
-              1 / minAR
-            }) - ${PARALLAX_DISTANCE}px)`,
-          }}
-        >
-          {projects.map(({ title, thumbnail, sys }, i) => (
-            <Link
-              key={i}
-              href={`projects/${sys.id}`}
-              className={s.frame}
-              style={{
-                transform: `translateX(calc((100% + ${GALLERY_GAP}) * ${i}))`,
-              }}
-            >
-              <div
-                className={s.parallax}
-                style={{
-                  width: `calc(${IMG_HEIGHT} * ${
-                    thumbnail.width / thumbnail.height
-                  })`,
-                }}
-              >
-                <Image
-                  src={thumbnail.url}
-                  fill
-                  alt={title}
-                  sizes="(min-width: 800px) 25vw, 50vw"
-                />
-              </div>
-            </Link>
+        <ul className={s.list} ref={gotosRef}>
+          {projects.map(({ sys: { id }, title }, i) => (
+            <li key={id + i} className={s.goto} onClick={() => console.log(id)}>
+              {title}
+            </li>
           ))}
+        </ul>
+
+        <div className={s.target}>
+          <div className={s.sample} ref={sampleRectRef}>
+            BASE
+          </div>
+
+          <ul className={s.list} ref={linksRef}>
+            {projects.map(({ sys: { id }, title }, i) => (
+              <li key={id + i}>
+                <Link className={s.link} href={`/projects/${id}`}>
+                  {title}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </main>
@@ -169,13 +116,29 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
           height
           url
         }
+        photosCollection {
+          items {
+            url
+            width
+            height
+          }
+        }
       }
     }
   }`)
 
   return {
     props: {
-      projects: collectionCollection.items,
+      projects: [
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+        ...collectionCollection.items,
+      ],
     },
   }
 }

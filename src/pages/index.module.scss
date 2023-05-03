@@ -2,34 +2,46 @@
 
 .base {
   position: fixed;
+  width: 100%;
+  top: 50%;
+  transform: translate(0, -50%);
+  // border: red 1px solid;
+  padding-left: 15%;
+}
+
+.list {
+  position: absolute;
   top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 100%;
+  width: 100%;
+  will-change: transform;
+}
 
-  .gallery {
-    position: relative;
+.title {
+  font-size: 6vw;
+  font-weight: 700;
+  text-overflow: clip;
+  white-space: nowrap;
+}
 
-    .frame {
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      // border: 1px red solid;
+.link {
+  @extend .title;
+}
 
-      .parallax {
-        position: absolute;
-        height: 100%;
-        top: 0;
-        left: 50%;
-      }
+.goto {
+  @extend .title;
+  -webkit-text-stroke: 1px black;
+  color: white;
+  opacity: 0.2;
+  cursor: pointer;
+}
 
-      img {
-        filter: grayscale(1);
-      }
-    }
-  }
+.sample {
+  @extend .title;
+  visibility: hidden;
+}
+
+.target {
+  position: relative;
+  overflow: hidden;
 }

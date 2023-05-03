@@ -2,7 +2,14 @@
 @import './_functions.scss';
 
 :root {
-  --padding: 5px;
+  --sm: 4px;
+  --md: 8px;
+
+  --space: var(--sm);
+
+  @include desktop {
+    --space: var(--md);
+  }
 }
 
 html {

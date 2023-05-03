@@ -1,4 +1,4 @@
-import { Roboto_Flex } from 'next/font/google'
+import { EB_Garamond, Roboto_Flex } from 'next/font/google'
 import localFont from 'next/font/local'
 
 export const robotoFlex = Roboto_Flex({
@@ -20,3 +20,5 @@ export const emberly = localFont({
     // },
   ],
 })
+
+export const ebGaramond = EB_Garamond({ subsets: ['latin'] })
