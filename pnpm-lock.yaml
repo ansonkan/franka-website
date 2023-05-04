@@ -22,6 +22,9 @@ dependencies:
   '@types/react-dom':
     specifier: 18.0.11
     version: 18.0.11
+  '@types/stats.js':
+    specifier: 0.17.0
+    version: 0.17.0
   '@typescript-eslint/eslint-plugin':
     specifier: 5.57.0
     version: 5.57.0(@typescript-eslint/parser@5.57.0)(eslint@8.37.0)(typescript@5.0.3)
@@ -67,6 +70,9 @@ dependencies:
   sass:
     specifier: 1.61.0
     version: 1.61.0
+  stats.js:
+    specifier: 0.17.0
+    version: 0.17.0
   the-new-css-reset:
     specifier: 1.8.4
     version: 1.8.4
@@ -395,6 +401,10 @@ packages:
 
   /@types/semver@7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
+    dev: false
+
+  /@types/stats.js@0.17.0:
+    resolution: {integrity: sha512-9w+a7bR8PeB0dCT/HBULU2fMqf6BAzvKbxFboYhmDtDkKPiyXYbjoe2auwsXlEFI7CFNMF1dCv3dFH5Poy9R1w==}
     dev: false
 
   /@typescript-eslint/eslint-plugin@5.57.0(@typescript-eslint/parser@5.57.0)(eslint@8.37.0)(typescript@5.0.3):
@@ -2620,6 +2630,10 @@ packages:
       error-stack-parser: 2.1.4
       stack-generator: 2.0.10
       stacktrace-gps: 3.1.2
+    dev: false
+
+  /stats.js@0.17.0:
+    resolution: {integrity: sha512-hNKz8phvYLPEcRkeG1rsGmV5ChMjKDAWU7/OJJdDErPBNChQXxCo3WZurGpnWc6gZhAzEPFad1aVgyOANH1sMw==}
     dev: false
 
   /stop-iteration-iterator@1.0.0:
