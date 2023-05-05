@@ -1,5 +1,6 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next'
 import Image from 'next/image'
+import cn from 'clsx'
 import { gql } from '@/lib/contentful-gql'
 import s from './projects_id.module.scss'
 import { useEffect } from 'react'
@@ -37,7 +38,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
 
   return (
     <main>
-      <div className={s.root}>
+      <div className={cn('page', s.root)}>
         <div className={s.thumbnailContainer}>
           <div
             className={s.thumbnailWrapper}
@@ -45,7 +46,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
               aspectRatio: thumbnail.width / thumbnail.height,
             }}
           >
-            <Image src={thumbnail.url} fill alt={title} sizes="30vw" />
+            <Image src={thumbnail.url} fill alt={title} sizes="40vw" />
           </div>
 
           <h1>{title}</h1>
@@ -60,7 +61,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                 aspectRatio: width / height,
               }}
             >
-              <Image src={url} fill alt={title + i} sizes="30vw" />
+              <Image src={url} fill alt={title + i} sizes="40vw" />
             </div>
           )
         })}

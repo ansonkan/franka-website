@@ -68,6 +68,7 @@ body {
 }
 
 .rich-text-page {
+  @extend .page;
   padding: 30vw 5vw;
 
   @include desktop {
@@ -90,6 +91,11 @@ footer {
 
 .root {
   position: relative;
+  // min-height: calc(100 * var(--vh, 1vh));
+  // padding-bottom: calc(16 * var(--vh, 1vh));
+}
+
+.page {
   min-height: calc(100 * var(--vh, 1vh));
   padding-bottom: calc(16 * var(--vh, 1vh));
 }

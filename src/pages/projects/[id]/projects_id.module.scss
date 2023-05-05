@@ -21,7 +21,8 @@
   .imageWrapper {
     position: relative;
     align-self: flex-start;
-    min-width: 30vw;
+    width: 40vw;
+    height: 60vw;
 
     &:nth-child(even) {
       align-self: flex-end;
