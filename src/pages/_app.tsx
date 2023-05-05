@@ -76,7 +76,6 @@ export default function App({ Component, pageProps }: AppProps) {
             <Link href="/portfolio">Portfolio</Link>
             <Link href="/advertising">Advertising</Link>
             <Link href="/contact">Contact</Link>
-            <Link href="/social-media">Social Media</Link>
           </div>
         </nav>
 
