@@ -2,8 +2,6 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next'
 import Image from 'next/image'
 import { gql } from '@/lib/contentful-gql'
 import s from './projects_id.module.scss'
-import { useEffect } from 'react'
-import { useStore } from '@/lib/use-store'
 
 interface Project {
   sys: { id: string }

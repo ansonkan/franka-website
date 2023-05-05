@@ -66,3 +66,11 @@ body {
     }
   }
 }
+
+.rich-text-page {
+  padding: 30vw 5vw;
+
+  @include desktop {
+    padding: 15vw 10vw;
+  }
+}
