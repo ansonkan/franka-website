@@ -6,6 +6,7 @@ import Lenis from '@studio-freight/lenis'
 import Link from 'next/link'
 import { RealViewport } from '@/components/real-viewport'
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger'
+import cn from 'clsx'
 import dynamic from 'next/dynamic'
 import { gsap } from 'gsap'
 import { raf } from '@studio-freight/tempus'
@@ -64,7 +65,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className={robotoFlex.className}>
+      <div className={cn('root', robotoFlex.className)}>
         {debug && <Stats />}
 
         <nav className="header">
@@ -80,6 +81,11 @@ export default function App({ Component, pageProps }: AppProps) {
         </nav>
 
         <Component {...pageProps} />
+
+        <footer>
+          copyright {new Date().getFullYear()} Franka Robin Zweydinger /{' '}
+          <Link href="/imprint">Imprint</Link>
+        </footer>
       </div>
 
       <RealViewport />

@@ -74,3 +74,21 @@ body {
     padding: 15vw 10vw;
   }
 }
+
+footer {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  padding: calc(2 * var(--vh, 1vh)) 4vw;
+  text-align: center;
+  text-transform: uppercase;
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+.root {
+  position: relative;
+  min-height: calc(100 * var(--vh, 1vh));
+}
