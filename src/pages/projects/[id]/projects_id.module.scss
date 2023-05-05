@@ -1,0 +1,67 @@
+@import '@/styles/_functions.scss';
+
+.root {
+  position: relative;
+  min-height: calc(100 * var(--vh, 1vh));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(2 * var(--vh, 1vh));
+
+  padding-left: 5vw;
+  padding-right: 5vw;
+
+  @include desktop {
+    padding-left: 20vw;
+    padding-right: 20vw;
+  }
+
+  pointer-events: none;
+
+  .imageWrapper {
+    position: relative;
+    align-self: flex-start;
+    min-width: 30vw;
+
+    &:nth-child(even) {
+      align-self: flex-end;
+    }
+
+    img {
+      object-fit: contain;
+    }
+  }
+}
+
+.thumbnailContainer {
+  position: relative;
+  width: 100%;
+  height: calc(100 * var(--vh, 1vh));
+  padding: 4vw;
+
+  h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 8vw;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .thumbnailWrapper {
+    // @extend .imageWrapper;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+
+    opacity: 0.8;
+
+    img {
+      object-fit: contain;
+    }
+  }
+}

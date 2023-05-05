@@ -1,6 +1,7 @@
 import 'the-new-css-reset/css/reset.css'
 import '@/styles/globals.scss'
 import type { AppProps } from 'next/app'
+import Head from 'next/head'
 import Lenis from '@studio-freight/lenis'
 import Link from 'next/link'
 import { RealViewport } from '@/components/real-viewport'
@@ -56,11 +57,20 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <Head>
+        <title>Franka Robin Zweydinger</title>
+        <meta name="description" content="Franka" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
       <div className={robotoFlex.className}>
         {debug && <Stats />}
 
         <nav className="header">
-          <h1 className="name">Franka Robin Zweydinger</h1>
+          <Link href="/" className="name">
+            <h1>Franka Robin Zweydinger</h1>
+          </Link>
 
           <div className="links">
             <Link href="/portfolio">Portfolio</Link>

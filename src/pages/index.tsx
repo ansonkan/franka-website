@@ -1,6 +1,5 @@
 import { GetStaticProps, NextPage } from 'next'
 import { useEffect, useRef } from 'react'
-import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
 import { gql } from '@/lib/contentful-gql'
@@ -15,6 +14,7 @@ type Photo = {
   width: number
   height: number
 }
+
 interface Project {
   sys: { id: string }
   title: string
@@ -95,17 +95,8 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
     })
   })
 
-  console.log('projects: ', projects)
-
   return (
     <main>
-      <Head>
-        <title>Franka Robin Zweydinger</title>
-        <meta name="description" content="Franka Robin Zweydinger" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <div ref={scrollDivRef} />
 
       <div className={s.previewsContainer}>
@@ -220,16 +211,7 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
 
   return {
     props: {
-      projects: [
-        ...collectionCollection.items,
-        ...collectionCollection.items,
-        ...collectionCollection.items,
-        ...collectionCollection.items,
-        ...collectionCollection.items,
-        ...collectionCollection.items,
-        ...collectionCollection.items,
-        ...collectionCollection.items,
-      ],
+      projects: collectionCollection.items,
     },
   }
 }

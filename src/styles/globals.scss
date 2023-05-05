@@ -47,16 +47,22 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  z-index: 1000;
 
   .name {
-    font-size: 2vw;
+    font-size: large;
     font-weight: 700;
   }
 
   .links {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 10px;
     text-decoration: underline;
+    text-align: right;
+
+    @include desktop {
+      flex-direction: row;
+    }
   }
 }

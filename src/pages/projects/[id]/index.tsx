@@ -1,7 +1,7 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next'
-import Head from 'next/head'
 import Image from 'next/image'
 import { gql } from '@/lib/contentful-gql'
+import s from './projects_id.module.scss'
 import { useEffect } from 'react'
 import { useStore } from '@/lib/use-store'
 
@@ -26,42 +26,39 @@ interface ProjectPageProps {
   project: Project
 }
 
-const ProjectPage: NextPage<ProjectPageProps> = ({ project }) => {
-  const lenis = useStore((state) => state.lenis)
-
-  useEffect(() => {
-    lenis?.scrollTo(0, { immediate: true })
-  }, [lenis])
-
+const ProjectPage: NextPage<ProjectPageProps> = ({
+  project: { title, thumbnail, photosCollection },
+}) => {
   return (
     <main>
-      <Head>
-        <title>Franka</title>
-        <meta name="description" content="Franka" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <div>{JSON.stringify(project)}</div>
-
-      <div>{project.title}</div>
-
-      {[project.thumbnail, ...project.photosCollection.items].map(
-        (photo, i) => (
+      <div className={s.root}>
+        <div className={s.thumbnailContainer}>
           <div
-            key={i}
-            style={{ position: 'relative', width: '100vw', height: '100vh' }}
+            className={s.thumbnailWrapper}
+            style={{
+              aspectRatio: thumbnail.width / thumbnail.height,
+            }}
           >
-            <Image
-              src={photo.url}
-              fill
-              alt={project.title + i}
-              sizes="(min-width: 800px) 25vw, 50vw"
-              style={{ objectFit: 'contain' }}
-            />
+            <Image src={thumbnail.url} fill alt={title} sizes="30vw" />
           </div>
-        )
-      )}
+
+          <h1>{title}</h1>
+        </div>
+
+        {photosCollection.items.map(({ url, width, height }, i) => {
+          return (
+            <div
+              key={i}
+              className={s.imageWrapper}
+              style={{
+                aspectRatio: width / height,
+              }}
+            >
+              <Image src={url} fill alt={title + i} sizes="30vw" />
+            </div>
+          )
+        })}
+      </div>
     </main>
   )
 }
