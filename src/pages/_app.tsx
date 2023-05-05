@@ -14,6 +14,7 @@ import { robotoFlex } from '@/fonts'
 import { useDebug } from '@studio-freight/hamo'
 import { useEffect } from 'react'
 import { useFrame } from '@studio-freight/hamo'
+import { useRouter } from 'next/router'
 import { useStore } from '@/lib/use-store'
 
 if (typeof window !== 'undefined') {
@@ -34,6 +35,8 @@ const Stats = dynamic(
 )
 
 export default function App({ Component, pageProps }: AppProps) {
+  const { pathname } = useRouter()
+
   const debug = useDebug()
 
   const [lenis, setLenis] = useStore((state) => [state.lenis, state.setLenis])
@@ -68,17 +71,19 @@ export default function App({ Component, pageProps }: AppProps) {
       <div className={cn('root', robotoFlex.className)}>
         {debug && <Stats />}
 
-        <nav className="header">
-          <Link href="/" className="name">
-            <h1>Franka Robin Zweydinger</h1>
-          </Link>
+        {pathname !== '/black-header' && (
+          <nav className="header">
+            <Link href="/" className="name">
+              <h1>Franka Robin Zweydinger</h1>
+            </Link>
 
-          <div className="links">
-            <Link href="/portfolio">Portfolio</Link>
-            <Link href="/advertising">Advertising</Link>
-            <Link href="/contact">Contact</Link>
-          </div>
-        </nav>
+            <div className="links">
+              <Link href="/portfolio">Portfolio</Link>
+              <Link href="/advertising">Advertising</Link>
+              <Link href="/contact">Contact</Link>
+            </div>
+          </nav>
+        )}
 
         <Component {...pageProps} />
 
