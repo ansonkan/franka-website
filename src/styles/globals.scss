@@ -91,4 +91,5 @@ footer {
 .root {
   position: relative;
   min-height: calc(100 * var(--vh, 1vh));
+  padding-bottom: calc(16 * var(--vh, 1vh));
 }
