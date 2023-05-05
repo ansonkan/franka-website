@@ -69,10 +69,10 @@ body {
 
 .rich-text-page {
   @extend .page;
-  padding: 30vw 5vw;
+  padding: 30vh 5vw;
 
   @include desktop {
-    padding: 15vw 10vw;
+    padding: 15vh 10vw;
   }
 }
 
