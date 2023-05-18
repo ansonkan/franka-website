@@ -1,85 +1,107 @@
 @import '@/styles/_functions.scss';
 
-.menuContainer {
-  position: fixed;
-  width: 100%;
-  top: 50%;
-  transform: translate(0, -50%);
-  // border: red 1px solid;
-  padding-left: 5%;
-
-  @include desktop {
-    padding-left: 15%;
+.base {
+  @include landscape {
+    position: fixed;
+    top: 0;
+    left: 0;
   }
 
-  .menuLinkArea {
-    position: relative;
-    overflow: hidden;
-    // backdrop-filter: invert(1);
-  }
-}
-
-.list {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  will-change: transform;
-}
-
-.title {
-  font-size: 6vw;
-  font-weight: 700;
-  text-overflow: clip;
-  white-space: nowrap;
-  line-height: 1.5;
-}
-
-.link {
-  @extend .title;
-}
-
-.goto {
-  @extend .title;
-  -webkit-text-stroke: 1px black;
-  color: transparent;
-  opacity: 0.3;
-  cursor: pointer;
-}
-
-.sample {
-  @extend .title;
-  visibility: hidden;
-}
-
-.previewsContainer {
-  position: fixed;
-  // height: 100vh;
-  width: 100vw;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  will-change: transform;
-
-  opacity: 0.8;
-}
-
-.previewGroup {
   position: relative;
-  height: calc(100 * var(--vh, 1vh));
   width: 100vw;
-  // border: 1px red solid;
-}
+  padding: calc(50 * var(--vh, 1vh) - var(--square-size) / 2) 0;
 
-.previewImage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
 
-  img {
-    object-fit: contain;
+  @include landscape {
+    height: calc(100 * var(--vh, 1vh));
+    width: auto;
+    padding: 0 calc(50vw - var(--square-size) / 2);
+    flex-direction: row;
+  }
+
+  .project {
+    position: relative;
+
+    @include portrait {
+      .previews {
+        transform: translateX(calc(var(--square-size) / -2));
+      }
+
+      // &:nth-child(odd) {
+      //   .previews {
+      //     transform: translateX(calc(-1 * var(--square-size) - var(--gap) / 2));
+      //   }
+      // }
+
+      // &:nth-child(even) {
+      //   .previews {
+      //     transform: translateX(calc(var(--square-size) / -2));
+      //   }
+      // }
+    }
+
+    @include landscape {
+      // position: absolute;
+      // top: 0;
+      // right: calc(-1 * var(--square-size));
+
+      .previews {
+        transform: translateY(calc(var(--square-size) / -2));
+      }
+
+      // &:nth-child(odd) {
+      //   .previews {
+      //     transform: translateY(calc(-1 * var(--square-size) - var(--gap) / 2));
+      //   }
+      // }
+
+      // &:nth-child(even) {
+      //   .previews {
+      //     transform: translateY(calc(var(--square-size) / -2));
+      //   }
+      // }
+    }
+
+    .previewWrapper {
+      position: relative;
+      height: var(--square-size);
+      width: 100vw;
+      overflow: hidden;
+
+      @include landscape {
+        height: calc(100 * var(--vh, 1vh));
+        width: var(--square-size);
+      }
+
+      .previews {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow: visible;
+        gap: var(--gap);
+
+        @include landscape {
+          flex-direction: column;
+        }
+
+        .item {
+          position: relative;
+          width: var(--square-size);
+          height: var(--square-size);
+          flex-basis: var(--square-size);
+          aspect-ratio: 1;
+
+          img {
+            object-fit: cover;
+          }
+        }
+      }
+    }
   }
 }

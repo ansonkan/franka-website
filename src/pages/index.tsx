@@ -2,178 +2,241 @@ import { GetStaticProps, NextPage } from 'next'
 import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { gql } from '@/lib/contentful-gql'
+import { SelectedProjectsCollectionQuery } from '@/gql/graphql'
+import { getSelectedProjects } from '@/lib/queries/ssg-queries'
 import gsap from 'gsap'
+import { mapRange } from '@/lib/maths'
 import s from './index.module.scss'
-import { useRect } from '@studio-freight/hamo'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
 
-type Photo = {
-  url: string
-  width: number
-  height: number
-}
-
-interface Project {
-  sys: { id: string }
-  title: string
-  thumbnail: Photo
-  photosCollection: {
-    items: Photo[]
-  }
-}
-
 interface IndexProps {
-  projects: Project[]
+  projects: NonNullable<
+    NonNullable<
+      NonNullable<
+        SelectedProjectsCollectionQuery['selectedProjectsCollection']
+      >['items'][number]
+    >['projectsCollection']
+  >['items']
 }
-
-const SCROLL_DISTANCE_FACTOR = 5
-const PREVIEW_SIDE_IMAGES_POSITIONS = [
-  ['translate(-140%, -10%)', 'translate(25%, -60%)'],
-  ['translate(-150%, 20%)', 'translate(35%, -120%)'],
-  ['translate(-130%, -120%)', 'translate(40%, 20%)'],
-  ['translate(-120%, 30%)', 'translate(60%, -60%)'],
-]
 
 const Index: NextPage<IndexProps> = ({ projects }) => {
-  const lenis = useStore(({ lenis }) => lenis)
+  const [lenis] = useStore(({ lenis, setLenis }) => [lenis, setLenis])
 
-  const [sampleRectRef, sampleRect] = useRect()
   const scrollDivRef = useRef<HTMLDivElement>(null)
-  const linkListRef = useRef<HTMLUListElement>(null)
-  const gotoListRef = useRef<HTMLUListElement>(null)
-
-  const previewImages = useRef<
-    Array<{ group: HTMLDivElement; children: HTMLDivElement[] }>
+  const baseRef = useRef<HTMLDivElement>(null)
+  const visibleProjectsRef = useRef<
+    { projectElement: HTMLDivElement; previewsElement: HTMLDivElement }[]
   >([])
 
-  const setupScrollTrigger = useRef(false)
+  useEffect(() => {
+    lenis?.stop()
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(({ target, isIntersecting }) => {
+          if (isIntersecting) {
+            if (
+              visibleProjectsRef.current.findIndex(
+                (p) => p.projectElement === target
+              ) > -1
+            ) {
+              return
+            }
+
+            visibleProjectsRef.current.push({
+              projectElement: target as HTMLDivElement,
+              previewsElement: target.querySelector(
+                `.${s.previews}`
+              ) as HTMLDivElement,
+            })
+          } else {
+            visibleProjectsRef.current = visibleProjectsRef.current.filter(
+              (project) => project.projectElement !== target
+            )
+          }
+        })
+      },
+      {
+        root: null,
+        threshold: [0, 1],
+      }
+    )
+
+    gsap.utils.toArray<HTMLDivElement>(`.${s.project}`).forEach((project) => {
+      observer.observe(project)
+    })
+
+    lenis?.start()
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [lenis])
 
   useEffect(() => {
-    if (setupScrollTrigger.current) return
+    const onResize = () => {
+      const isLandscape = window.innerWidth > window.innerHeight
 
-    document
-      .querySelectorAll<HTMLDivElement>(`.${s.previewGroup}`)
-      .forEach((group, i) => {
-        const children: HTMLDivElement[] = []
-        group
-          .querySelectorAll<HTMLDivElement>(`.${s.previewImage}`)
-          .forEach((node) => children.push(node))
-
-        previewImages.current[i] = { group, children }
+      gsap.set(scrollDivRef.current, {
+        height: isLandscape
+          ? window.innerHeight +
+            Math.max((projects.length || 0) - 1, 0) * (window.innerHeight / 2)
+          : 0,
       })
 
-    setupScrollTrigger.current = true
-  }, [])
+      if (!isLandscape) {
+        gsap.to(baseRef.current, { x: 0 })
+      }
+    }
 
-  useScroll(({ scroll }) => {
-    if (
-      !scrollDivRef.current ||
-      !sampleRect ||
-      !gotoListRef.current ||
-      !linkListRef.current
-    )
-      return
+    onResize()
+    window.addEventListener('resize', onResize)
 
-    gsap.set(scrollDivRef.current, {
-      height:
-        window.innerHeight +
-        sampleRect.height * (projects.length - 1) * SCROLL_DISTANCE_FACTOR,
-    })
+    return () => {
+      window.removeEventListener('resize', onResize)
+    }
+  }, [projects.length])
 
-    gsap.to([linkListRef.current, gotoListRef.current], {
-      y: -scroll / SCROLL_DISTANCE_FACTOR,
-      duration: 0,
-      ease: 'none',
-    })
+  useScroll(
+    ({ scroll }) => {
+      const isLandscape = window.innerWidth > window.innerHeight
 
-    gsap.to(`.${s.previewsContainer}`, {
-      y:
-        (-scroll / SCROLL_DISTANCE_FACTOR) *
-        (window.innerHeight / sampleRect.height),
-    })
-  })
+      if (isLandscape) {
+        gsap.to(baseRef.current, { x: -scroll })
+        // return
+      }
+
+      const axis = isLandscape ? window.innerHeight : window.innerWidth
+
+      const gap = axis * 0.02
+      const squareSize = axis / 2 - gap
+      const start = -(squareSize / 2)
+      const end = -(3.5 * squareSize + 3 * gap)
+      const distance = Math.abs(end - start)
+
+      visibleProjectsRef.current.forEach(({ previewsElement }) => {
+        /**
+         * Note:
+         * [1, 2, 3, 1, 2, 3] can reset at index 4 but
+         * [1, 2, 1, 2, 1, 2] cannot.
+         *
+         * So this is an easy workaround, since the max
+         * preview item count is still 3 on Contentful.
+         */
+        const _distance =
+          previewsElement.dataset.previewsCount === '3'
+            ? distance
+            : distance - (squareSize + gap)
+
+        const displacement = mapRange(
+          0,
+          distance,
+          (scroll * 2) % _distance,
+          start,
+          end
+        )
+
+        /**
+         * Note:
+         * Note: scroll * 2 make sure we at least be able to see all three previews in 1 screen.
+         *
+         * But the multiplier can't be any number, otherwise the ending translate position
+         * can be wrong, where 2 works fine.
+         */
+        gsap.to(previewsElement, {
+          x: isLandscape ? 0 : displacement,
+          y: isLandscape ? displacement : 0,
+          duration: 0,
+          ease: 'none',
+        })
+
+        // Note: this makes me quite dizzy, so let's keep the translations in the same direction
+        // if (previewsElement.dataset.translateGroup === 'odd') {
+        //   const displacement = mapRange(
+        //     0,
+        //     distance,
+        //     scroll % _distance,
+        //     start,
+        //     end
+        //   )
+        //   gsap.to(previewsElement, {
+        //     x: isLandscape ? 0 : displacement,
+        //     y: isLandscape ? displacement : 0,
+        //     duration: 0,
+        //     ease: 'none',
+        //   })
+        // } else {
+        //   const displacement = mapRange(
+        //     0,
+        //     distance,
+        //     scroll % _distance,
+        //     end,
+        //     start
+        //   )
+        //   gsap.to(previewsElement, {
+        //     x: isLandscape ? 0 : displacement,
+        //     y: isLandscape ? displacement : 0,
+        //     duration: 0,
+        //     ease: 'none',
+        //   })
+        // }
+      })
+    },
+    [visibleProjectsRef.current]
+  )
 
   return (
     <main>
       <div ref={scrollDivRef} />
 
-      <div className={s.previewsContainer}>
-        {projects.map(
-          (
-            { sys: { id }, thumbnail, photosCollection: { items }, title },
-            i
-          ) => (
-            <div key={id + i} className={s.previewGroup}>
-              {[thumbnail, ...items]
-                .slice(0, 3)
-                .map(({ url, width, height }, j) => {
-                  const isThumbnail = j === 0
+      <div className={s.base} ref={baseRef}>
+        {projects.map((project, i) => {
+          // project.
+          if (!project || !project.previewsCollection?.items.length) return
 
-                  return (
-                    <div
-                      key={id + url + j}
-                      className={s.previewImage}
-                      style={{
-                        aspectRatio: width / height,
-                        width: isThumbnail ? '60vw' : '30vw',
-                        height: `calc(${
-                          isThumbnail ? 60 : 30
-                        } * var(--vh, 1vh))`,
-                        transform:
-                          j === 0
-                            ? undefined
-                            : PREVIEW_SIDE_IMAGES_POSITIONS[
-                                (i + 1) % PREVIEW_SIDE_IMAGES_POSITIONS.length
-                              ][j % 2],
-                      }}
-                    >
-                      <Image src={url} fill sizes="40vw" alt={title} />
-                    </div>
-                  )
-                })}
-            </div>
+          const { sys, previewsCollection, title } = project
+
+          const previews = [1, 2, 3, 4, 5, 6].map(
+            (index) =>
+              previewsCollection.items[index % previewsCollection.items.length]
           )
-        )}
-      </div>
 
-      <div className={s.menuContainer}>
-        <ul className={s.list} ref={gotoListRef}>
-          {projects.map(({ sys: { id }, title }, i) => (
-            <li
-              key={id + i}
-              className={s.goto}
-              onClick={() => {
-                lenis?.scrollTo(
-                  sampleRect.height * i * SCROLL_DISTANCE_FACTOR,
-                  {
-                    // Note: without this, `scrollTo` seems to be never ending and keeps triggering `scroll` event
-                    duration: 1,
-                  }
-                )
-              }}
+          return (
+            <article
+              className={s.project}
+              key={sys.id + i}
+              data-project-index={i}
             >
-              {title}
-            </li>
-          ))}
-        </ul>
+              <div className={s.previewWrapper}>
+                <div
+                  className={s.previews}
+                  data-previews-count={previewsCollection.items.length}
+                  data-translate-group={i % 2 === 0 ? 'even' : 'odd'}
+                >
+                  {previews.map((preview, i) => {
+                    if (!preview || !preview.url) return
 
-        <div className={s.menuLinkArea}>
-          <div className={s.sample} ref={sampleRectRef}>
-            BASE
-          </div>
-
-          <ul className={s.list} ref={linkListRef}>
-            {projects.map(({ sys: { id }, title }, i) => (
-              <li key={id + i}>
-                <Link className={s.link} href={`/projects/${id}`}>
-                  {title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+                    return (
+                      <Link
+                        href={`/projects/${sys.id}`}
+                        className={s.item}
+                        key={i}
+                      >
+                        <Image
+                          src={preview.url}
+                          fill
+                          alt={title || ''}
+                          sizes="30vw"
+                        />
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            </article>
+          )
+        })}
       </div>
     </main>
   )
@@ -182,36 +245,13 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
 export default Index
 
 export const getStaticProps: GetStaticProps<IndexProps> = async () => {
-  const { collectionCollection } = await gql<{
-    collectionCollection: {
-      items: Project[]
-    }
-  }>(`{
-    collectionCollection {
-      items {
-        sys {
-          id
-        }
-        title
-        thumbnail {
-          width
-          height
-          url
-        }
-        photosCollection {
-          items {
-            url
-            width
-            height
-          }
-        }
-      }
-    }
-  }`)
+  const data = await getSelectedProjects()
 
   return {
     props: {
-      projects: collectionCollection.items,
+      projects:
+        data.selectedProjectsCollection?.items[0]?.projectsCollection?.items ||
+        [],
     },
   }
 }

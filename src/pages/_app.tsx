@@ -8,7 +8,7 @@ import { RealViewport } from '@/components/real-viewport'
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger'
 import cn from 'clsx'
 import dynamic from 'next/dynamic'
-import { gsap } from 'gsap'
+import gsap from 'gsap'
 import { raf } from '@studio-freight/tempus'
 import { robotoFlex } from '@/fonts'
 import { useDebug } from '@studio-freight/hamo'
@@ -35,9 +35,8 @@ const Stats = dynamic(
 )
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { pathname } = useRouter()
-
   const debug = useDebug()
+  const router = useRouter()
 
   const [lenis, setLenis] = useStore((state) => [state.lenis, state.setLenis])
 
@@ -45,6 +44,7 @@ export default function App({ Component, pageProps }: AppProps) {
     window.scrollTo(0, 0)
     const lenis = new Lenis({
       smoothTouch: true,
+      duration: 1.5,
     })
     setLenis(lenis)
 
@@ -54,6 +54,14 @@ export default function App({ Component, pageProps }: AppProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    window.history.scrollRestoration = 'manual'
+  }, [])
+
+  useEffect(() => {
+    lenis?.scrollTo(0, { immediate: true })
+  }, [lenis, router.asPath])
 
   useFrame((time: number) => {
     lenis?.raf(time)
@@ -71,19 +79,16 @@ export default function App({ Component, pageProps }: AppProps) {
       <div className={cn('root', robotoFlex.className)}>
         {debug && <Stats />}
 
-        {pathname !== '/black-header' && (
-          <nav className="header">
-            <Link href="/" className="name">
-              <h1>Franka Robin Zweydinger</h1>
-            </Link>
+        <nav className="header">
+          <Link href="/" className="name">
+            <h1>Franka Robin Zweydinger</h1>
+          </Link>
 
-            <div className="links">
-              <Link href="/portfolio">Portfolio</Link>
-              <Link href="/advertising">Advertising</Link>
-              <Link href="/contact">Contact</Link>
-            </div>
-          </nav>
-        )}
+          <div className="links">
+            <Link href="/projects">all projects</Link>
+            <Link href="/portfolio">portfolio</Link>
+          </div>
+        </nav>
 
         <Component {...pageProps} />
 

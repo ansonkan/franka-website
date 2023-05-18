@@ -1,0 +1,183 @@
+query selectedProjectsCollection {
+  selectedProjectsCollection(limit: 1) {
+    items {
+      sys {
+        id
+      }
+      projectsCollection {
+        items {
+          sys {
+            id
+          }
+          title
+          previewsCollection {
+            items {
+              url
+              width
+              height
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query collectionCollection {
+  collectionCollection {
+    items {
+      sys {
+        id
+      }
+    }
+  }
+}
+
+query collectionEntry($id: String!) {
+  collection(id: $id) {
+    sys {
+      id
+    }
+    title
+    previewsCollection {
+      items {
+        url
+        width
+        height
+      }
+    }
+    photosCollection {
+      items {
+        url
+        width
+        height
+      }
+    }
+  }
+}
+
+# Note: generated types have missing properties somehow... let's not use fragments for now
+# fragment pageDetails on Page {
+#   sys {
+#     id
+#   }
+#   content {
+#     json
+#     links {
+#       assets {
+#         hyperlink {
+#           sys {
+#             id
+#           }
+#           title
+#           description
+#           contentType
+#           fileName
+#           size
+#           url
+#           width
+#           height
+#         }
+#         block {
+#           sys {
+#             id
+#           }
+#           title
+#           description
+#           contentType
+#           fileName
+#           size
+#           url
+#           width
+#           height
+#         }
+#       }
+#     }
+#   }
+# }
+
+query pageImprint {
+  pageCollection(where: { slug: "imprint" }, limit: 1) {
+    items {
+      sys {
+        id
+      }
+      content {
+        json
+        links {
+          assets {
+            hyperlink {
+              sys {
+                id
+              }
+              title
+              description
+              contentType
+              fileName
+              size
+              url
+              width
+              height
+            }
+            block {
+              sys {
+                id
+              }
+              title
+              description
+              contentType
+              fileName
+              size
+              url
+              width
+              height
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query pagePortfolio {
+  pageCollection(where: { slug: "portfolio" }, limit: 1) {
+    items {
+      sys {
+        id
+      }
+      content {
+        json
+        links {
+          assets {
+            hyperlink {
+              sys {
+                id
+              }
+              title
+              description
+              contentType
+              fileName
+              size
+              url
+              width
+              height
+            }
+            block {
+              sys {
+                id
+              }
+              title
+              description
+              contentType
+              fileName
+              size
+              url
+              width
+              height
+            }
+          }
+        }
+      }
+    }
+  }
+}

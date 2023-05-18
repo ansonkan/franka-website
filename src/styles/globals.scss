@@ -7,6 +7,20 @@
 
   --space: var(--sm);
 
+  --header-px: 2vw;
+  --header-py: calc(2 * var(--vh, 1vh));
+  --header-p: var(--header-py) var(--header-px);
+
+  // START: for the home page mainly
+  --gap: 2vw;
+  --square-size: calc(50vw - var(--gap));
+
+  @include landscape {
+    --gap: calc(2 * var(--vh, 1vh));
+    --square-size: calc(50 * var(--vh, 1vh) - var(--gap));
+  }
+  // END: for the home page mainly
+
   @include desktop {
     --space: var(--md);
   }
@@ -42,7 +56,7 @@ body {
 
 .header {
   position: fixed;
-  padding: calc(2 * var(--vh, 1vh)) 4vw;
+  padding: var(--header-p);
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -67,22 +81,14 @@ body {
   }
 }
 
-.rich-text-page {
-  @extend .page;
-  padding: 30vh 5vw;
-
-  @include desktop {
-    padding: 15vh 10vw;
-  }
-}
-
 footer {
   position: absolute;
   width: 100%;
   bottom: 0;
-  padding: calc(2 * var(--vh, 1vh)) 4vw;
+  padding: var(--header-p);
   text-align: center;
   text-transform: uppercase;
+  z-index: 1000;
 
   a {
     text-decoration: underline;
@@ -91,11 +97,10 @@ footer {
 
 .root {
   position: relative;
-  // min-height: calc(100 * var(--vh, 1vh));
-  // padding-bottom: calc(16 * var(--vh, 1vh));
-}
-
-.page {
   min-height: calc(100 * var(--vh, 1vh));
-  padding-bottom: calc(16 * var(--vh, 1vh));
+  font-size: small;
+
+  @include desktop {
+    font-size: medium;
+  }
 }

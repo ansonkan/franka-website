@@ -1,11 +1,12 @@
 import { ContentfulRichText, Links } from '@/components/contentful-rich-text'
 import { GetStaticProps, NextPage } from 'next'
 import { Document } from '@contentful/rich-text-types'
-import { gql } from '@/lib/contentful-gql'
+import { PageImprintDocument } from '@/gql/graphql'
+import { client } from '@/lib/contentful-gql'
 
 interface ImprintProps {
   document: Document
-  links: Links
+  links?: Links
 }
 
 const Imprint: NextPage<ImprintProps> = ({ document, links }) => {
@@ -19,60 +20,18 @@ const Imprint: NextPage<ImprintProps> = ({ document, links }) => {
 export default Imprint
 
 export const getStaticProps: GetStaticProps<ImprintProps> = async () => {
-  const { pageCollection } = await gql<{
-    pageCollection: {
-      items: {
-        sys: { id: string }
-        content: { json: Document; links: Links }
-      }[]
+  const data = await client.request(PageImprintDocument)
+
+  if (!data.pageCollection?.items[0]?.content) {
+    return {
+      notFound: true,
     }
-  }>(`{
-    pageCollection(where: { slug: "imprint" }, limit: 1) {
-      items {
-        sys {
-          id
-        }
-        content {
-          json
-          links {
-            assets {
-              hyperlink {
-                sys {
-                  id
-                }
-                title
-                description
-                contentType
-                fileName
-                size
-                url
-                width
-                height
-              }
-              block {
-                sys {
-                  id
-                }
-                title
-                description
-                contentType
-                fileName
-                size
-                url
-                width
-                height
-              }
-            }
-          }
-        }
-      }
-    }
-  }`)
+  }
 
   return {
     props: {
-      document: pageCollection.items[0].content.json,
-      links: pageCollection.items[0].content.links,
+      document: data.pageCollection.items[0].content.json,
+      links: data.pageCollection.items[0].content.links as Links,
     },
   }
 }
