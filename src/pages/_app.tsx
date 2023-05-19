@@ -43,8 +43,7 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     window.scrollTo(0, 0)
     const lenis = new Lenis({
-      smoothTouch: true,
-      duration: 1.5,
+      syncTouch: true,
     })
     setLenis(lenis)
 

@@ -91,7 +91,7 @@
   @extend .intro;
 
   gap: var(--overview-square-gap);
-  padding-bottom: calc(6 * var(--vh, 1vh));
+  padding-bottom: calc(10 * var(--vh, 1vh));
 
   @include desktop {
     width: auto;
