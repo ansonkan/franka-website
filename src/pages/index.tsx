@@ -1,5 +1,5 @@
 import { GetStaticProps, NextPage } from 'next'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { SelectedProjectsCollectionQuery } from '@/gql/graphql'
@@ -74,31 +74,7 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
     }
   }, [lenis])
 
-  useEffect(() => {
-    const onResize = () => {
-      const isLandscape = window.innerWidth > window.innerHeight
-
-      gsap.set(scrollDivRef.current, {
-        height: isLandscape
-          ? window.innerHeight +
-            Math.max((projects.length || 0) - 1, 0) * (window.innerHeight / 2)
-          : 0,
-      })
-
-      if (!isLandscape) {
-        gsap.to(baseRef.current, { x: 0 })
-      }
-    }
-
-    onResize()
-    window.addEventListener('resize', onResize)
-
-    return () => {
-      window.removeEventListener('resize', onResize)
-    }
-  }, [projects.length])
-
-  useScroll(
+  const onScroll = useCallback<({ scroll }: { scroll: number }) => void>(
     ({ scroll }) => {
       const isLandscape = window.innerWidth > window.innerHeight
 
@@ -183,8 +159,38 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
         // }
       })
     },
-    [visibleProjectsRef.current]
+    []
   )
+
+  useEffect(() => {
+    const onResize = () => {
+      const isLandscape = window.innerWidth > window.innerHeight
+
+      gsap.set(scrollDivRef.current, {
+        height: isLandscape
+          ? window.innerHeight +
+            Math.max((projects.length || 0) - 1, 0) * (window.innerHeight / 2)
+          : 0,
+      })
+
+      if (!isLandscape) {
+        gsap.to(baseRef.current, { x: 0 })
+      }
+
+      // Note: reset
+      lenis?.scrollTo(0, { immediate: true })
+      onScroll({ scroll: 0 })
+    }
+
+    onResize()
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      window.removeEventListener('resize', onResize)
+    }
+  }, [lenis, onScroll, projects.length])
+
+  useScroll(onScroll, [onScroll])
 
   return (
     <main>
