@@ -1,11 +1,12 @@
-import {
-  CollectionCollectionDocument,
-  CollectionEntryDocument,
-  CollectionEntryQuery,
-  SelectedProjectsCollectionQuery,
-} from '@/gql/graphql'
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next'
+import {
+  ProjectDocument,
+  ProjectQuery,
+  ProjectsDocument,
+  SelectedProjectsQuery,
+} from '@/gql/graphql'
 import { useLayoutEffect, useRef, useState } from 'react'
+import { ContentfulRichText } from '@/components/contentful-rich-text'
 import Image from 'next/image'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
@@ -13,23 +14,21 @@ import cn from 'clsx'
 import { getSelectedProjects } from '@/lib/queries/ssg-queries'
 import gsap from 'gsap'
 import s from './projects_id.module.scss'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
 
 interface ProjectPageProps {
-  project: NonNullable<CollectionEntryQuery['collection']>
+  project: NonNullable<ProjectQuery['projects']>
   nextSelectedProject?: NonNullable<
     NonNullable<
       NonNullable<
-        SelectedProjectsCollectionQuery['selectedProjectsCollection']
+        SelectedProjectsQuery['selectedProjectsCollection']
       >['items'][number]
     >['projectsCollection']
   >['items'][number]
 }
-
-// TODO: add this to Contentful
-const meta = 'King Gnu\nChainsaw Man\nPolyphia Studio'
 
 const ProjectPage: NextPage<ProjectPageProps> = ({
   project,
@@ -118,24 +117,24 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
           <div className={s.info}>
             {project.title && <h1 className={s.title}>{project.title}</h1>}
 
-            {meta && (
+            {project.description?.json && (
               <div className={s.meta}>
-                {meta.split('\n').map((x, i) => (
-                  <p key={i}>{x}</p>
-                ))}
+                <ContentfulRichText>
+                  {project.description.json}
+                </ContentfulRichText>
               </div>
             )}
           </div>
         </div>
 
-        <ol className={s.overviews}>
-          {project.photosCollection?.items.map((photo, i) => {
+        <ol className={s.overview}>
+          {project.previewsCollection?.items.map((photo, i) => {
             if (!photo || !photo.url) return
 
             return (
               <li
-                key={i}
-                className={s.overviewsImgWrapper}
+                key={photo.sys.id}
+                className={s.overviewImgWrapper}
                 onClick={() => {
                   lenis?.scrollTo(`.${s.galleryImgWrapper}:nth-child(${i + 1})`)
                 }}
@@ -144,7 +143,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   src={photo.url}
                   fill
                   alt={project.title || '' + ` ${i}`}
-                  sizes="20vw"
+                  sizes="15vw"
                 />
               </li>
             )
@@ -153,14 +152,14 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
 
         <div className={s.two}>
           <ol className={s.gallery} ref={galleryRef}>
-            {project.photosCollection?.items.map((photo, i) => {
+            {project.mediaCollection?.items.map((photo, i) => {
               if (!photo || !photo.url) return
 
               const { width, height } = photo
 
               return (
                 <li
-                  key={i}
+                  key={photo.sys.id}
                   className={s.galleryImgWrapper}
                   style={
                     width && height
@@ -172,7 +171,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                     src={photo.url}
                     fill
                     alt={project.title || '' + ` ${i}`}
-                    sizes="50vw"
+                    sizes="33vw"
                   />
                 </li>
               )
@@ -189,16 +188,16 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   {'> next'}
                 </Link>
 
-                <div className={cn(s.overviews, s.reverse)}>
+                <div className={cn(s.overview, s.reverse)}>
                   {nextSelectedProject?.previewsCollection?.items.map(
                     (preview, i) => {
                       if (!preview || !preview.url) return
 
                       return (
                         <Link
-                          key={i}
+                          key={preview.sys.id}
                           href={`/projects/${nextSelectedProject.sys.id}`}
-                          className={s.overviewsImgWrapper}
+                          className={s.overviewImgWrapper}
                         >
                           <Image
                             src={preview.url}
@@ -227,11 +226,11 @@ type Params = {
 }
 
 export const getStaticPaths: GetStaticPaths<Params> = async () => {
-  const data = await client.request(CollectionCollectionDocument)
+  const data = await client.request(ProjectsDocument, { locale: 'en-US' })
 
   return {
     paths:
-      data.collectionCollection?.items
+      data.projectsCollection?.items
         .filter((item) => !!item)
         .map((item) => ({
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -243,6 +242,7 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
 
 export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
   params,
+  locale = 'en-US',
 }) => {
   if (!params?.id) {
     return {
@@ -250,18 +250,23 @@ export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
     }
   }
 
-  const selectedProjects = await getSelectedProjects()
+  const selectedProjects = await getSelectedProjects(locale)
 
-  const data = await client.request(CollectionEntryDocument, { id: params.id })
+  const data = await client.request(ProjectDocument, {
+    id: params.id,
+    locale: 'en-US',
+  })
 
-  if (!data.collection) {
+  if (!data.projects) {
     return {
       notFound: true,
     }
   }
 
+  const translations = await serverSideTranslations(locale, ['common'])
+
   const indexInSelectedProjects =
-    selectedProjects.selectedProjectsCollection?.items[0]?.projectsCollection?.items.findIndex(
+    selectedProjects?.selectedProjectsCollection?.items[0]?.projectsCollection?.items.findIndex(
       (selectedProject) => selectedProject?.sys.id === params.id
     )
 
@@ -269,16 +274,17 @@ export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
     typeof indexInSelectedProjects === 'number' &&
     indexInSelectedProjects > -1 &&
     indexInSelectedProjects + 1 <
-      (selectedProjects.selectedProjectsCollection?.items[0]?.projectsCollection
-        ?.items.length || 0)
-      ? selectedProjects.selectedProjectsCollection?.items[0]
+      (selectedProjects?.selectedProjectsCollection?.items[0]
+        ?.projectsCollection?.items.length || 0)
+      ? selectedProjects?.selectedProjectsCollection?.items[0]
           ?.projectsCollection?.items[indexInSelectedProjects + 1]
       : undefined
 
   if (nextSelectedProject) {
     return {
       props: {
-        project: data.collection,
+        ...translations,
+        project: data.projects,
         nextSelectedProject,
       },
     }
@@ -286,7 +292,8 @@ export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
 
   return {
     props: {
-      project: data.collection,
+      ...translations,
+      project: data.projects,
     },
   }
 }

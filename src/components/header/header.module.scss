@@ -1,0 +1,36 @@
+@import '@/styles/_functions.scss';
+
+.header {
+  position: fixed;
+  padding: var(--header-p);
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  z-index: 1000;
+
+  .name {
+    font-size: large;
+    font-weight: 700;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    a {
+      text-decoration: underline;
+    }
+
+    @include desktop {
+      flex-direction: row;
+    }
+
+    .locales {
+      display: flex;
+      flex-direction: row;
+      gap: 2.5px;
+    }
+  }
+}

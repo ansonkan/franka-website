@@ -1,11 +1,18 @@
-import { EB_Garamond, Roboto_Flex } from 'next/font/google'
+import { EB_Garamond, Roboto } from 'next/font/google'
 import localFont from 'next/font/local'
 
-export const robotoFlex = Roboto_Flex({
-  style: ['normal'],
+export const roboto = Roboto({
+  style: ['normal', 'italic'],
   subsets: ['latin'],
-  axes: ['wdth', 'slnt', 'opsz', 'XTRA'],
+  weight: ['100', '400', '700'],
 })
+
+// Note: font weight of this flex version seems to have become very very light even at 700, so switching back to the normal version
+// export const robotoFlex = Roboto_Flex({
+//   style: ['normal'],
+//   subsets: ['latin'],
+//   axes: ['wdth', 'slnt', 'opsz', 'XTRA'],
+// })
 
 export const emberly = localFont({
   src: [

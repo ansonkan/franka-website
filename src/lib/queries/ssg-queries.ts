@@ -1,17 +1,19 @@
-import {
-  SelectedProjectsCollectionDocument,
-  SelectedProjectsCollectionQuery,
-} from '@/gql/graphql'
-
+import { SelectedProjectsDocument, SelectedProjectsQuery } from '@/gql/graphql'
+import { LOCALES } from '@/constants'
 import { client } from '@/lib/contentful-gql'
 
-let selectedProjects: SelectedProjectsCollectionQuery
+const selectedProjects: Record<string, SelectedProjectsQuery | undefined> = {}
 
-export async function getSelectedProjects() {
-  if (!selectedProjects) {
-    const data = await client.request(SelectedProjectsCollectionDocument)
-    selectedProjects = data
+export async function getSelectedProjects(locale = 'en-US') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!LOCALES.includes(locale as any)) {
+    locale = LOCALES[0]
   }
 
-  return selectedProjects
+  if (!selectedProjects[locale]) {
+    const data = await client.request(SelectedProjectsDocument, { locale })
+    selectedProjects[locale] = data
+  }
+
+  return selectedProjects[locale]
 }

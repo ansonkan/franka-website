@@ -1,16 +1,18 @@
 import 'the-new-css-reset/css/reset.css'
 import '@/styles/globals.scss'
+import { appWithTranslation, useTranslation } from 'next-i18next'
 import type { AppProps } from 'next/app'
+import { ContentfulRichText } from '@/components/contentful-rich-text'
 import Head from 'next/head'
+import { Header } from '@/components/header'
 import Lenis from '@studio-freight/lenis'
-import Link from 'next/link'
 import { RealViewport } from '@/components/real-viewport'
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger'
 import cn from 'clsx'
 import dynamic from 'next/dynamic'
 import gsap from 'gsap'
 import { raf } from '@studio-freight/tempus'
-import { robotoFlex } from '@/fonts'
+import { roboto } from '@/fonts'
 import { useDebug } from '@studio-freight/hamo'
 import { useEffect } from 'react'
 import { useFrame } from '@studio-freight/hamo'
@@ -34,9 +36,10 @@ const Stats = dynamic(
   { ssr: false }
 )
 
-export default function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   const debug = useDebug()
   const router = useRouter()
+  const { t } = useTranslation('common')
 
   const [lenis, setLenis] = useStore((state) => [state.lenis, state.setLenis])
 
@@ -66,34 +69,34 @@ export default function App({ Component, pageProps }: AppProps) {
     lenis?.raf(time)
   })
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const footerContent: any = t('rich-text.footer', { returnObjects: true })
+
   return (
     <>
       <Head>
-        <title>Franka Robin Zweydinger</title>
-        <meta name="description" content="Franka" />
+        <title>{t('plain-text.head.title')}</title>
+        <meta
+          name="description"
+          content={t('plain-text.head.description') || ''}
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className={cn('root', robotoFlex.className)}>
+      <div className={cn('root', roboto.className)}>
         {debug && <Stats />}
 
-        <nav className="header">
-          <Link href="/" className="name">
-            <h1>Franka Robin Zweydinger</h1>
-          </Link>
-
-          <div className="links">
-            <Link href="/projects">all projects</Link>
-            <Link href="/portfolio">portfolio</Link>
-          </div>
-        </nav>
+        <Header />
 
         <Component {...pageProps} />
 
         <footer>
-          copyright {new Date().getFullYear()} Franka Robin Zweydinger /{' '}
-          <Link href="/imprint">Imprint</Link>
+          {footerContent && (
+            <ContentfulRichText links={footerContent.links}>
+              {footerContent.json}
+            </ContentfulRichText>
+          )}
         </footer>
       </div>
 
@@ -101,3 +104,5 @@ export default function App({ Component, pageProps }: AppProps) {
     </>
   )
 }
+
+export default appWithTranslation(App)

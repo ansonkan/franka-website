@@ -19,6 +19,22 @@
     }
   },
 
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/scripts/gen-ctf-i18n.mjs"
+  ],
+  "exclude": ["node_modules"],
+
+  "ts-node": {
+    "compilerOptions": {
+      // compilerOptions specified here will override those declared below,
+      // but *only* in ts-node.  Useful if you want ts-node and tsc to use
+      // different options with a single tsconfig.json.
+
+      "module": "CommonJS",
+      "isolatedModules": false
+    }
+  }
 }

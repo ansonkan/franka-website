@@ -1,9 +1,6 @@
 @import '@/styles/_functions.scss';
 
 .root {
-  --overview-square-size: 20vw;
-  --overview-square-gap: 2vw;
-
   position: relative;
   width: 100%;
   min-height: calc(100 * var(--vh, 1vh));
@@ -12,7 +9,7 @@
   grid-template-columns: 1fr;
   grid-template-areas:
     'intro'
-    'overviews'
+    'overview'
     'two';
   gap: var(--overview-square-gap);
 
@@ -45,8 +42,8 @@
     flex-direction: row;
     overflow: hidden;
 
-    .overviews {
-      height: calc(10 * var(--vh, 1vh));
+    .overview {
+      height: var(--overview-height);
     }
   }
 }
@@ -97,10 +94,11 @@
     width: auto;
     padding-left: 0;
     padding-right: 0;
-    padding-left: 25vw;
+    // Note: to avoid footer crashing with photos
+    padding-left: 50vw;
   }
 
-  .overviews {
+  .overview {
     padding-left: 0;
     padding-right: 0;
 
@@ -121,6 +119,11 @@
 
 .meta {
   opacity: 0.7;
+  font-size: x-small;
+
+  @include desktop {
+    font-size: small;
+  }
 
   display: flex;
   flex-direction: column;
@@ -128,8 +131,8 @@
   text-align: right;
 }
 
-.overviews {
-  grid-area: overviews;
+.overview {
+  grid-area: overview;
 
   @include desktop {
     display: none;
@@ -150,7 +153,7 @@
     justify-content: flex-end;
   }
 
-  .overviewsImgWrapper {
+  .overviewImgWrapper {
     position: relative;
     height: 100%;
     width: auto;

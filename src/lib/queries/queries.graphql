@@ -1,5 +1,5 @@
-query selectedProjectsCollection {
-  selectedProjectsCollection(limit: 1) {
+query selectedProjects($locale: String!) {
+  selectedProjectsCollection(limit: 1, locale: $locale) {
     items {
       sys {
         id
@@ -12,6 +12,9 @@ query selectedProjectsCollection {
           title
           previewsCollection {
             items {
+              sys {
+                id
+              }
               url
               width
               height
@@ -23,31 +26,49 @@ query selectedProjectsCollection {
   }
 }
 
-query collectionCollection {
-  collectionCollection {
+query projects($locale: String!) {
+  projectsCollection(locale: $locale) {
     items {
       sys {
         id
+      }
+      title
+      previewsCollection {
+        items {
+          sys {
+            id
+          }
+          url
+        }
       }
     }
   }
 }
 
-query collectionEntry($id: String!) {
-  collection(id: $id) {
+query project($id: String!, $locale: String!) {
+  projects(id: $id, locale: $locale) {
     sys {
       id
     }
     title
+    description {
+      json
+    }
     previewsCollection {
       items {
+        sys {
+          id
+        }
         url
         width
         height
       }
     }
-    photosCollection {
+    mediaCollection {
       items {
+        sys {
+          id
+        }
         url
         width
         height
@@ -56,69 +77,28 @@ query collectionEntry($id: String!) {
   }
 }
 
-# Note: generated types have missing properties somehow... let's not use fragments for now
-# fragment pageDetails on Page {
-#   sys {
-#     id
-#   }
-#   content {
-#     json
-#     links {
-#       assets {
-#         hyperlink {
-#           sys {
-#             id
-#           }
-#           title
-#           description
-#           contentType
-#           fileName
-#           size
-#           url
-#           width
-#           height
-#         }
-#         block {
-#           sys {
-#             id
-#           }
-#           title
-#           description
-#           contentType
-#           fileName
-#           size
-#           url
-#           width
-#           height
-#         }
-#       }
-#     }
-#   }
-# }
-
-query pageImprint {
-  pageCollection(where: { slug: "imprint" }, limit: 1) {
+query richTextPages {
+  richTextPagesCollection {
     items {
       sys {
         id
       }
+      slug
+    }
+  }
+}
+
+query richTextPage($slug: String!, $locale: String!) {
+  richTextPagesCollection(where: { slug: $slug }, limit: 1, locale: $locale) {
+    items {
+      sys {
+        id
+      }
+      slug
       content {
         json
         links {
           assets {
-            hyperlink {
-              sys {
-                id
-              }
-              title
-              description
-              contentType
-              fileName
-              size
-              url
-              width
-              height
-            }
             block {
               sys {
                 id
@@ -139,29 +119,34 @@ query pageImprint {
   }
 }
 
-query pagePortfolio {
-  pageCollection(where: { slug: "portfolio" }, limit: 1) {
+query i18nPlainText($locale: String!) {
+  inPlainTextCollection(locale: $locale) {
     items {
-      sys {
-        id
-      }
-      content {
+      key
+      value
+    }
+  }
+}
+
+# Note:
+# Because of the CTF API query complexity limit, all of the i18n entries cannot be queried at once,
+# so this query is to find out the total number of entries, then query portion of them one by one
+query i18nRichTextKeys {
+  i18NCollection {
+    items {
+      key
+    }
+  }
+}
+
+query i18nRichText($skip: Int!, $limit: Int!, $locale: String!) {
+  i18NCollection(skip: $skip, limit: $limit, locale: $locale) {
+    items {
+      key
+      value {
         json
         links {
           assets {
-            hyperlink {
-              sys {
-                id
-              }
-              title
-              description
-              contentType
-              fileName
-              size
-              url
-              width
-              height
-            }
             block {
               sys {
                 id

@@ -1,37 +1,16 @@
+import { Asset, RichTextPagesContentLinks } from '@/gql/graphql'
 import { BLOCKS, Document, INLINES, MARKS } from '@contentful/rich-text-types'
 import {
   Options,
   documentToReactComponents,
 } from '@contentful/rich-text-react-renderer'
 import Image from 'next/image'
+import Link from 'next/link'
 import s from './contentful-rich-text.module.scss'
 
-export type Asset = {
-  sys: {
-    id: string
-  }
-  title: string
-  description: string
-  contentType: string
-  fileName: string
-  size: number
-  url: string
-  width: number
-  height: number
-}
-
-export type ContentAssets = {
-  hyperlink: Asset[]
-  block: Asset[]
-}
-
-export type Links = {
-  assets: ContentAssets
-}
-
 export interface ContentfulRichTextProps {
-  children: Document
-  links?: Links
+  children?: Document
+  links?: RichTextPagesContentLinks
 }
 
 export const ContentfulRichText = ({
@@ -44,7 +23,8 @@ export const ContentfulRichText = ({
   // const entryBlockMap = new Map()
   if (links) {
     // loop through the assets and add them to the map
-    for (const asset of links.assets.block) {
+    for (const asset of links.assets?.block || []) {
+      if (!asset) continue
       assetBlockMap.set(asset.sys.id, asset)
     }
 
@@ -64,48 +44,47 @@ export const ContentfulRichText = ({
         return <p>{children}</p>
       },
       [BLOCKS.HEADING_1]: (node, children) => {
-        return <h1 className={s.h1}>{children}</h1>
+        return <h1>{children}</h1>
       },
       [BLOCKS.HEADING_2]: (node, children) => {
-        return <h2 className={s.h2}>{children}</h2>
+        return <h2>{children}</h2>
       },
       [BLOCKS.HEADING_3]: (node, children) => {
-        return <h3 className={s.h3}>{children}</h3>
+        return <h3>{children}</h3>
       },
       [BLOCKS.HEADING_4]: (node, children) => {
-        return <h4 className={s.h4}>{children}</h4>
+        return <h4>{children}</h4>
       },
       [BLOCKS.HEADING_5]: (node, children) => {
-        return <h5 className={s.h5}>{children}</h5>
+        return <h5>{children}</h5>
       },
       [BLOCKS.HEADING_6]: (node, children) => {
-        return <h6 className={s.h6}>{children}</h6>
+        return <h6>{children}</h6>
       },
       [BLOCKS.UL_LIST]: (node, children) => {
-        return <ul className={s.ul}>{children}</ul>
+        return <ul>{children}</ul>
       },
       [BLOCKS.OL_LIST]: (node, children) => {
-        return <ol className={s.ol}>{children}</ol>
+        return <ol>{children}</ol>
       },
       [BLOCKS.LIST_ITEM]: (node, children) => {
         return <li>{children}</li>
       },
       [BLOCKS.QUOTE]: (node, children) => {
-        return <q className={s.q}>{children}</q>
+        return <q>{children}</q>
       },
       [BLOCKS.HR]: () => {
-        return <hr className={s.hr} />
+        return <hr />
       },
-      [BLOCKS.EMBEDDED_ENTRY]: (node, children) => {
-        // console.log(node, children)
-        return <></>
-      },
+      // [BLOCKS.EMBEDDED_ENTRY]: (node, children) => {
+      //   return <></>
+      // },
       [BLOCKS.EMBEDDED_ASSET]: (node) => {
         const asset = assetBlockMap.get(node.data.target.sys.id)
 
-        return asset ? (
+        return asset?.url ? (
           <div className={s.imageWrapper}>
-            <Image src={asset.url} alt={asset.title} fill />
+            <Image src={asset.url} alt={asset.title || ''} fill sizes="50vw" />
           </div>
         ) : (
           <></>
@@ -119,44 +98,61 @@ export const ContentfulRichText = ({
       [BLOCKS.TABLE_ROW]: (node, children) => <tr>{children}</tr>,
       [BLOCKS.TABLE_CELL]: (node, children) => <td>{children}</td>,
       [BLOCKS.TABLE_HEADER_CELL]: (node, children) => <th>{children}</th>,
-      [INLINES.EMBEDDED_ENTRY]: (node) => {
-        return <></>
-      },
+      // [INLINES.EMBEDDED_ENTRY]: (node) => {
+      //   return <></>
+      // },
       [INLINES.HYPERLINK]: (node, children) => {
+        const uri: string | undefined | null = node.data.uri
+        if (!uri) return <></>
+
+        if (uri.startsWith('http')) {
+          // Note: external
+          return (
+            <a href={node.data.uri} className={s.u}>
+              {children}
+            </a>
+          )
+        }
+
+        // Note: internal
         return (
-          <a href={node.data.uri} className={s.u}>
+          <Link href={uri} className={s.u}>
             {children}
-          </a>
+          </Link>
         )
       },
-      [INLINES.ENTRY_HYPERLINK]: (node) => {
-        return <></>
-      },
-      [INLINES.ASSET_HYPERLINK]: (node) => {
-        return <></>
-      },
-      // [BLOCKS.EMBEDDED_ENTRY]: (node) => {
-      //   const { title, description } = node.data.target.fields
+      // [INLINES.ENTRY_HYPERLINK]: (node) => {
+      //   return <></>
+      // },
+      // [INLINES.ASSET_HYPERLINK]: (node) => {
       //   return <></>
       // },
     },
     renderMark: {
       [MARKS.BOLD]: (text) => {
-        return <b className={s.b}>{text}</b>
+        return <b>{text}</b>
       },
       [MARKS.ITALIC]: (text) => {
-        return <i className={s.i}>{text}</i>
+        return <i>{text}</i>
       },
       [MARKS.UNDERLINE]: (text) => {
-        return <u className={s.u}>{text}</u>
+        return <u>{text}</u>
       },
       [MARKS.CODE]: (text) => {
         return <code>{text}</code>
+      },
+      [MARKS.SUBSCRIPT]: (text) => {
+        return <sub>{text}</sub>
+      },
+      [MARKS.SUPERSCRIPT]: (text) => {
+        return <sup>{text}</sup>
       },
     },
   }
 
   return (
-    <div className={s.root}>{documentToReactComponents(children, options)}</div>
+    <div className={s.root}>
+      {children && documentToReactComponents(children, options)}
+    </div>
   )
 }

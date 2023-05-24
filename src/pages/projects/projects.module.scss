@@ -1,0 +1,58 @@
+@import '@/styles/_functions.scss';
+
+.table {
+  width: 100%;
+
+  thead {
+    display: none;
+  }
+
+  th,
+  td {
+    display: table-cell;
+    padding: calc(var(--overview-square-gap) / 2);
+    vertical-align: middle;
+
+    & > div {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+.title {
+  max-width: 30vw;
+  overflow: hidden;
+  white-space: normal;
+  text-overflow: ellipsis;
+  font-weight: 700;
+  text-align: right;
+}
+
+.previewsCol {
+  position: relative;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: var(--overview-square-gap);
+
+  @include desktop {
+    justify-content: flex-start;
+  }
+}
+
+.previewsImgWrapper {
+  position: relative;
+  height: 50px;
+  aspect-ratio: 1;
+
+  @include desktop {
+    height: var(--overview-height);
+  }
+
+  img {
+    object-fit: cover;
+  }
+}

@@ -2,11 +2,12 @@ import { GetStaticProps, NextPage } from 'next'
 import { useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { SelectedProjectsCollectionQuery } from '@/gql/graphql'
+import { SelectedProjectsQuery } from '@/gql/graphql'
 import { getSelectedProjects } from '@/lib/queries/ssg-queries'
 import gsap from 'gsap'
 import { mapRange } from '@/lib/maths'
 import s from './index.module.scss'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
 
@@ -14,7 +15,7 @@ interface IndexProps {
   projects: NonNullable<
     NonNullable<
       NonNullable<
-        SelectedProjectsCollectionQuery['selectedProjectsCollection']
+        SelectedProjectsQuery['selectedProjectsCollection']
       >['items'][number]
     >['projectsCollection']
   >['items']
@@ -198,7 +199,6 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
 
       <div className={s.base} ref={baseRef}>
         {projects.map((project, i) => {
-          // project.
           if (!project || !project.previewsCollection?.items.length) return
 
           const { sys, previewsCollection, title } = project
@@ -209,11 +209,7 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
           )
 
           return (
-            <article
-              className={s.project}
-              key={sys.id + i}
-              data-project-index={i}
-            >
+            <article className={s.project} key={sys.id} data-project-index={i}>
               <div className={s.previewWrapper}>
                 <div
                   className={s.previews}
@@ -227,7 +223,8 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
                       <Link
                         href={`/projects/${sys.id}`}
                         className={s.item}
-                        key={i}
+                        // Note: could have repeated `id` for repeated images, so need to add `i`
+                        key={preview.sys.id + i}
                       >
                         <Image
                           src={preview.url}
@@ -250,13 +247,16 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
 
 export default Index
 
-export const getStaticProps: GetStaticProps<IndexProps> = async () => {
-  const data = await getSelectedProjects()
+export const getStaticProps: GetStaticProps<IndexProps> = async ({
+  locale = 'en-US',
+}) => {
+  const data = await getSelectedProjects(locale)
 
   return {
     props: {
+      ...(await serverSideTranslations(locale, ['common'])),
       projects:
-        data.selectedProjectsCollection?.items[0]?.projectsCollection?.items ||
+        data?.selectedProjectsCollection?.items[0]?.projectsCollection?.items ||
         [],
     },
   }
