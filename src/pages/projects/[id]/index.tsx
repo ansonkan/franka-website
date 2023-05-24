@@ -8,6 +8,7 @@ import {
 import { useLayoutEffect, useRef, useState } from 'react'
 import { ContentfulRichText } from '@/components/contentful-rich-text'
 import Image from 'next/image'
+import { LOCALES } from '@/constants'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
 import cn from 'clsx'
@@ -229,13 +230,20 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
   const data = await client.request(ProjectsDocument, { locale: 'en-US' })
 
   return {
-    paths:
+    paths: (
       data.projectsCollection?.items
         .filter((item) => !!item)
         .map((item) => ({
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           params: { id: item!.sys.id },
-        })) || [],
+        })) || []
+    ).reduce((acc, cur) => {
+      LOCALES.forEach((l) => {
+        acc = [...acc, { ...cur, locale: l }]
+      })
+
+      return acc
+    }, [] as any),
     fallback: false, // can also be true or 'blocking'
   }
 }
@@ -254,7 +262,7 @@ export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
 
   const data = await client.request(ProjectDocument, {
     id: params.id,
-    locale: 'en-US',
+    locale,
   })
 
   if (!data.projects) {
