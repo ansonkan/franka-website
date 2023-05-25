@@ -77,93 +77,98 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
     }
   }, [lenis])
 
-  const onScroll = useCallback<({ scroll }: { scroll: number }) => void>(
-    ({ scroll }) => {
-      const isLandscape = window.innerWidth > window.innerHeight
+  const onScroll = useCallback<
+    ({ scroll, resetAll }: { scroll: number; resetAll?: boolean }) => void
+  >(({ scroll, resetAll }) => {
+    const isLandscape = window.innerWidth > window.innerHeight
 
-      if (isLandscape) {
-        gsap.to(baseRef.current, { x: -scroll })
-        // return
-      }
+    if (isLandscape) {
+      gsap.to(baseRef.current, { x: -scroll })
+      // return
+    }
 
-      const axis = isLandscape ? window.innerHeight : window.innerWidth
+    const axis = isLandscape ? window.innerHeight : window.innerWidth
 
-      const gap = axis * 0.02
-      const squareSize = axis / 2 - gap
-      const start = -(squareSize / 2)
-      const end = -(3.5 * squareSize + 3 * gap)
-      const distance = Math.abs(end - start)
+    const gap = axis * 0.02
+    const squareSize = axis / 2 - gap
+    const start = -(squareSize / 2)
+    const end = -(3.5 * squareSize + 3 * gap)
+    const distance = Math.abs(end - start)
 
-      visibleProjectsRef.current.forEach(({ previewsElement }) => {
-        /**
-         * Note:
-         * [1, 2, 3, 1, 2, 3] can reset at index 4 but
-         * [1, 2, 1, 2, 1, 2] cannot.
-         *
-         * So this is an easy workaround, since the max
-         * preview item count is still 3 on Contentful.
-         */
-        const _distance =
-          previewsElement.dataset.previewsCount === '3'
-            ? distance
-            : distance - (squareSize + gap)
+    const targets = resetAll
+      ? gsap.utils
+          .toArray<HTMLDivElement>(`.${s.previews}`)
+          .map((elem) => ({ previewsElement: elem }))
+      : visibleProjectsRef.current
 
-        const displacement = mapRange(
-          0,
-          distance,
-          (scroll * 2) % _distance,
-          start,
-          end
-        )
+    targets.forEach(({ previewsElement }) => {
+      /**
+       * Note:
+       * [1, 2, 3, 1, 2, 3] can reset at index 4 but
+       * [1, 2, 1, 2, 1, 2] cannot.
+       *
+       * So this is an easy workaround, since the max
+       * preview item count is still 3 on Contentful.
+       */
+      const _distance =
+        previewsElement.dataset.previewsCount === '3'
+          ? distance
+          : distance - (squareSize + gap)
 
-        /**
-         * Note:
-         * Note: scroll * 2 make sure we at least be able to see all three previews in 1 screen.
-         *
-         * But the multiplier can't be any number, otherwise the ending translate position
-         * can be wrong, where 2 works fine.
-         */
-        gsap.to(previewsElement, {
-          x: isLandscape ? 0 : displacement,
-          y: isLandscape ? displacement : 0,
-          duration: 0,
-          ease: 'none',
-        })
+      const displacement = mapRange(
+        0,
+        distance,
+        (scroll * 2) % _distance,
+        start,
+        end
+      )
 
-        // Note: this makes me quite dizzy, so let's keep the translations in the same direction
-        // if (previewsElement.dataset.translateGroup === 'odd') {
-        //   const displacement = mapRange(
-        //     0,
-        //     distance,
-        //     scroll % _distance,
-        //     start,
-        //     end
-        //   )
-        //   gsap.to(previewsElement, {
-        //     x: isLandscape ? 0 : displacement,
-        //     y: isLandscape ? displacement : 0,
-        //     duration: 0,
-        //     ease: 'none',
-        //   })
-        // } else {
-        //   const displacement = mapRange(
-        //     0,
-        //     distance,
-        //     scroll % _distance,
-        //     end,
-        //     start
-        //   )
-        //   gsap.to(previewsElement, {
-        //     x: isLandscape ? 0 : displacement,
-        //     y: isLandscape ? displacement : 0,
-        //     duration: 0,
-        //     ease: 'none',
-        //   })
-        // }
+      /**
+       * Note:
+       * Note: scroll * 2 make sure we at least be able to see all three previews in 1 screen.
+       *
+       * But the multiplier can't be any number, otherwise the ending translate position
+       * can be wrong, where 2 works fine.
+       */
+      gsap.to(previewsElement, {
+        x: isLandscape ? 0 : displacement,
+        y: isLandscape ? displacement : 0,
+        duration: 0,
+        ease: 'none',
       })
-    },
-    []
-  )
+
+      // Note: this makes me quite dizzy, so let's keep the translations in the same direction
+      // if (previewsElement.dataset.translateGroup === 'odd') {
+      //   const displacement = mapRange(
+      //     0,
+      //     distance,
+      //     scroll % _distance,
+      //     start,
+      //     end
+      //   )
+      //   gsap.to(previewsElement, {
+      //     x: isLandscape ? 0 : displacement,
+      //     y: isLandscape ? displacement : 0,
+      //     duration: 0,
+      //     ease: 'none',
+      //   })
+      // } else {
+      //   const displacement = mapRange(
+      //     0,
+      //     distance,
+      //     scroll % _distance,
+      //     end,
+      //     start
+      //   )
+      //   gsap.to(previewsElement, {
+      //     x: isLandscape ? 0 : displacement,
+      //     y: isLandscape ? displacement : 0,
+      //     duration: 0,
+      //     ease: 'none',
+      //   })
+      // }
+    })
+  }, [])
 
   useEffect(() => {
     const onResize = () => {
@@ -182,7 +187,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
 
       // Note: reset
       lenis?.scrollTo(0, { immediate: true })
-      onScroll({ scroll: 0 })
+      onScroll({ scroll: 0, resetAll: true })
     }
 
     onResize()
