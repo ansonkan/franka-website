@@ -1,8 +1,9 @@
 import { GetStaticProps, NextPage } from 'next'
 import { useCallback, useEffect, useRef } from 'react'
-import Image from 'next/image'
+import { FillImage } from '@/components/fill-image'
 import Link from 'next/link'
 import { SelectedProjectsQuery } from '@/gql/graphql'
+import { getPlaiceholder } from 'plaiceholder'
 import { getSelectedProjects } from '@/lib/queries/ssg-queries'
 import gsap from 'gsap'
 import { mapRange } from '@/lib/maths'
@@ -19,9 +20,10 @@ interface IndexProps {
       >['items'][number]
     >['projectsCollection']
   >['items']
+  base64Map: Record<string, string>
 }
 
-const Index: NextPage<IndexProps> = ({ projects }) => {
+const Index: NextPage<IndexProps> = ({ projects, base64Map }) => {
   const [lenis] = useStore(({ lenis, setLenis }) => [lenis, setLenis])
 
   const scrollDivRef = useRef<HTMLDivElement>(null)
@@ -226,11 +228,11 @@ const Index: NextPage<IndexProps> = ({ projects }) => {
                         // Note: could have repeated `id` for repeated images, so need to add `i`
                         key={preview.sys.id + i}
                       >
-                        <Image
+                        <FillImage
                           src={preview.url}
-                          fill
                           alt={title || ''}
                           sizes="30vw"
+                          color={base64Map[preview.url]}
                         />
                       </Link>
                     )
@@ -252,12 +254,29 @@ export const getStaticProps: GetStaticProps<IndexProps> = async ({
 }) => {
   const data = await getSelectedProjects(locale)
 
+  const projects =
+    data?.selectedProjectsCollection?.items[0]?.projectsCollection?.items || []
+
+  const base64Map: Record<string, string> = {}
+
+  for (const project of projects) {
+    for (const preview of project?.previewsCollection?.items || []) {
+      if (!preview?.url) continue
+
+      const imageRes = await fetch(`${preview.url}?w=10&q=75`)
+      // Convert the HTTP result into a buffer
+      const arrayBuffer = await imageRes.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+
+      base64Map[preview.url] = (await getPlaiceholder(buffer)).color.hex
+    }
+  }
+
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
-      projects:
-        data?.selectedProjectsCollection?.items[0]?.projectsCollection?.items ||
-        [],
+      projects,
+      base64Map,
     },
   }
 }

@@ -1,0 +1,50 @@
+@import '@/styles/_functions.scss';
+
+.abt {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.ani {
+  transition: all 0.6s ease;
+  /*
+    Note: 
+    This delay is a workaround for images still has not been appeared even after onLoadingComplete.
+    Don't know if I'm setting this component up incorrectly. 0.3s might not be enough for every device
+  */
+  transition-delay: 0.3s;
+}
+
+.root {
+  overflow: hidden;
+
+  img {
+    @extend .ani;
+    transform: scale(1.05);
+  }
+
+  @include hover {
+    &:hover img {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.cover {
+  @extend .ani;
+  background-color: rgb(215, 215, 215);
+  opacity: 1;
+}
+
+.loaded {
+  .cover {
+    opacity: 0;
+  }
+
+  img {
+    transform: scale(1);
+  }
+}

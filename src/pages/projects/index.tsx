@@ -1,6 +1,6 @@
 import { GetStaticProps, NextPage } from 'next'
 import { ProjectsDocument, ProjectsQuery } from '@/gql/graphql'
-import Image from 'next/image'
+import { FillImage } from '@/components/fill-image'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
 import s from './projects.module.scss'
@@ -50,9 +50,8 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects }) => {
                           key={photo.sys.id}
                           className={s.previewsImgWrapper}
                         >
-                          <Image
+                          <FillImage
                             src={photo.url}
-                            fill
                             alt={`${title || ''} ${i}`}
                             sizes="15vw"
                           />

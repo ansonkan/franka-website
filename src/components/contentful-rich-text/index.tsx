@@ -4,7 +4,7 @@ import {
   Options,
   documentToReactComponents,
 } from '@contentful/rich-text-react-renderer'
-import Image from 'next/image'
+import { FillImage } from '@/components/fill-image'
 import Link from 'next/link'
 import s from './contentful-rich-text.module.scss'
 
@@ -84,7 +84,7 @@ export const ContentfulRichText = ({
 
         return asset?.url ? (
           <div className={s.imageWrapper}>
-            <Image src={asset.url} alt={asset.title || ''} fill sizes="50vw" />
+            <FillImage src={asset.url} alt={asset.title || ''} sizes="50vw" />
           </div>
         ) : (
           <></>

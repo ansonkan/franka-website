@@ -7,7 +7,7 @@ import {
 } from '@/gql/graphql'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { ContentfulRichText } from '@/components/contentful-rich-text'
-import Image from 'next/image'
+import { FillImage } from '@/components/fill-image'
 import { LOCALES } from '@/constants'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
@@ -140,9 +140,8 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   lenis?.scrollTo(`.${s.galleryImgWrapper}:nth-child(${i + 1})`)
                 }}
               >
-                <Image
+                <FillImage
                   src={photo.url}
-                  fill
                   alt={project.title || '' + ` ${i}`}
                   sizes="15vw"
                 />
@@ -168,9 +167,8 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                       : undefined
                   }
                 >
-                  <Image
+                  <FillImage
                     src={photo.url}
-                    fill
                     alt={project.title || '' + ` ${i}`}
                     sizes="33vw"
                   />
@@ -200,9 +198,8 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                           href={`/projects/${nextSelectedProject.sys.id}`}
                           className={s.overviewImgWrapper}
                         >
-                          <Image
+                          <FillImage
                             src={preview.url}
-                            fill
                             alt={project.title || '' + ` ${i}`}
                             sizes="20vw"
                           />
