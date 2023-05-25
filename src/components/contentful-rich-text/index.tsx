@@ -11,11 +11,13 @@ import s from './contentful-rich-text.module.scss'
 export interface ContentfulRichTextProps {
   children?: Document
   links?: RichTextPagesContentLinks
+  colorMap?: Record<string, string>
 }
 
 export const ContentfulRichText = ({
   children,
   links,
+  colorMap,
 }: ContentfulRichTextProps) => {
   // create an asset block map
   const assetBlockMap = new Map<string, Asset>()
@@ -83,8 +85,16 @@ export const ContentfulRichText = ({
         const asset = assetBlockMap.get(node.data.target.sys.id)
 
         return asset?.url ? (
-          <div className={s.imageWrapper}>
-            <FillImage src={asset.url} alt={asset.title || ''} sizes="50vw" />
+          <div
+            className={s.imageWrapper}
+            style={{ aspectRatio: (asset.width || 0) / (asset.height || 0) }}
+          >
+            <FillImage
+              src={asset.url}
+              alt={asset.title || ''}
+              sizes="50vw"
+              color={colorMap?.[asset.url]}
+            />
           </div>
         ) : (
           <></>

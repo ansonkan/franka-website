@@ -3,15 +3,17 @@ import { ProjectsDocument, ProjectsQuery } from '@/gql/graphql'
 import { FillImage } from '@/components/fill-image'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
+import { getImgColor } from '@/lib/get-img-color'
 import s from './projects.module.scss'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
 interface ProjectsPageProps {
   projects: NonNullable<ProjectsQuery>
+  colorMap: Record<string, string>
 }
 
-const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects }) => {
+const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
   const { t } = useTranslation('common')
 
   return (
@@ -54,6 +56,7 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects }) => {
                             src={photo.url}
                             alt={`${title || ''} ${i}`}
                             sizes="15vw"
+                            color={colorMap[photo.url]}
                           />
                         </figure>
                       )
@@ -76,10 +79,21 @@ export const getStaticProps: GetStaticProps<ProjectsPageProps> = async ({
 }) => {
   const data = await client.request(ProjectsDocument, { locale })
 
+  const colorMap: Record<string, string> = {}
+
+  for (const project of data.projectsCollection?.items || []) {
+    for (const preview of project?.previewsCollection?.items || []) {
+      if (!preview?.url) continue
+
+      colorMap[preview.url] = await getImgColor(preview.url)
+    }
+  }
+
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
       projects: data,
+      colorMap,
     },
   }
 }

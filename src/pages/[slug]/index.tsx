@@ -7,6 +7,7 @@ import {
 import { ContentfulRichText } from '@/components/contentful-rich-text'
 import { LOCALES } from '@/constants'
 import { client } from '@/lib/contentful-gql'
+import { fillColorMap } from '@/lib/get-img-color'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 interface RichTextPageProps {
@@ -15,15 +16,17 @@ interface RichTextPageProps {
       NonNullable<RichTextPageQuery['richTextPagesCollection']>['items'][number]
     >['content']
   >
+  colorMap: Record<string, string>
 }
 
-const RichTextPage: NextPage<RichTextPageProps> = ({ content }) => {
+const RichTextPage: NextPage<RichTextPageProps> = ({ content, colorMap }) => {
   return (
     <main className="normalPageRoot">
       <ContentfulRichText
         // Note: I already used the same generated type for `links`... idk why still the type is broken. Don't care for now
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         links={content.links as any}
+        colorMap={colorMap}
       >
         {content.json}
       </ContentfulRichText>
@@ -80,10 +83,21 @@ export const getStaticProps: GetStaticProps<RichTextPageProps> = async ({
     }
   }
 
+  const content = data.richTextPagesCollection.items[0].content
+  const colorMap: Record<string, string> = {}
+
+  await fillColorMap(
+    content.links.assets.block.map((item) => ({
+      url: item?.url,
+    })),
+    colorMap
+  )
+
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
-      content: data.richTextPagesCollection.items[0].content,
+      content,
+      colorMap,
     },
   }
 }

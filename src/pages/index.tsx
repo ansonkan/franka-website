@@ -3,8 +3,8 @@ import { useCallback, useEffect, useRef } from 'react'
 import { FillImage } from '@/components/fill-image'
 import Link from 'next/link'
 import { SelectedProjectsQuery } from '@/gql/graphql'
-import { getPlaiceholder } from 'plaiceholder'
-import { getSelectedProjects } from '@/lib/queries/ssg-queries'
+import { getImgColor } from '@/lib/get-img-color'
+import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
 import gsap from 'gsap'
 import { mapRange } from '@/lib/maths'
 import s from './index.module.scss'
@@ -20,10 +20,10 @@ interface IndexProps {
       >['items'][number]
     >['projectsCollection']
   >['items']
-  base64Map: Record<string, string>
+  colorMap: Record<string, string>
 }
 
-const Index: NextPage<IndexProps> = ({ projects, base64Map }) => {
+const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
   const [lenis] = useStore(({ lenis, setLenis }) => [lenis, setLenis])
 
   const scrollDivRef = useRef<HTMLDivElement>(null)
@@ -232,7 +232,7 @@ const Index: NextPage<IndexProps> = ({ projects, base64Map }) => {
                           src={preview.url}
                           alt={title || ''}
                           sizes="30vw"
-                          color={base64Map[preview.url]}
+                          color={colorMap[preview.url]}
                         />
                       </Link>
                     )
@@ -257,18 +257,13 @@ export const getStaticProps: GetStaticProps<IndexProps> = async ({
   const projects =
     data?.selectedProjectsCollection?.items[0]?.projectsCollection?.items || []
 
-  const base64Map: Record<string, string> = {}
+  const colorMap: Record<string, string> = {}
 
   for (const project of projects) {
     for (const preview of project?.previewsCollection?.items || []) {
       if (!preview?.url) continue
 
-      const imageRes = await fetch(`${preview.url}?w=10&q=75`)
-      // Convert the HTTP result into a buffer
-      const arrayBuffer = await imageRes.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
-
-      base64Map[preview.url] = (await getPlaiceholder(buffer)).color.hex
+      colorMap[preview.url] = await getImgColor(preview.url)
     }
   }
 
@@ -276,7 +271,7 @@ export const getStaticProps: GetStaticProps<IndexProps> = async ({
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
       projects,
-      base64Map,
+      colorMap,
     },
   }
 }

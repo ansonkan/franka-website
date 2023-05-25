@@ -12,7 +12,8 @@ import { LOCALES } from '@/constants'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
 import cn from 'clsx'
-import { getSelectedProjects } from '@/lib/queries/ssg-queries'
+import { fillColorMap } from '@/lib/get-img-color'
+import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
 import gsap from 'gsap'
 import s from './projects_id.module.scss'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -29,11 +30,13 @@ interface ProjectPageProps {
       >['items'][number]
     >['projectsCollection']
   >['items'][number]
+  colorMap: Record<string, string>
 }
 
 const ProjectPage: NextPage<ProjectPageProps> = ({
   project,
   nextSelectedProject,
+  colorMap,
 }) => {
   const lenis = useStore(({ lenis }) => lenis)
   const { asPath } = useRouter()
@@ -144,6 +147,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   src={photo.url}
                   alt={project.title || '' + ` ${i}`}
                   sizes="15vw"
+                  color={colorMap[photo.url]}
                 />
               </li>
             )
@@ -171,6 +175,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                     src={photo.url}
                     alt={project.title || '' + ` ${i}`}
                     sizes="33vw"
+                    color={colorMap[photo.url]}
                   />
                 </li>
               )
@@ -202,6 +207,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                             src={preview.url}
                             alt={project.title || '' + ` ${i}`}
                             sizes="20vw"
+                            color={colorMap[preview.url]}
                           />
                         </Link>
                       )
@@ -269,6 +275,10 @@ export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
   }
 
   const translations = await serverSideTranslations(locale, ['common'])
+  const colorMap: Record<string, string> = {}
+
+  await fillColorMap(data.projects.mediaCollection?.items, colorMap)
+  await fillColorMap(data.projects.previewsCollection?.items, colorMap)
 
   const indexInSelectedProjects =
     selectedProjects?.selectedProjectsCollection?.items[0]?.projectsCollection?.items.findIndex(
@@ -286,11 +296,14 @@ export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
       : undefined
 
   if (nextSelectedProject) {
+    await fillColorMap(nextSelectedProject.previewsCollection?.items, colorMap)
+
     return {
       props: {
         ...translations,
         project: data.projects,
         nextSelectedProject,
+        colorMap,
       },
     }
   }
@@ -299,6 +312,7 @@ export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
     props: {
       ...translations,
       project: data.projects,
+      colorMap,
     },
   }
 }
