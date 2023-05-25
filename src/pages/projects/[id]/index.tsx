@@ -20,6 +20,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
+import { useTranslation } from 'next-i18next'
 
 interface ProjectPageProps {
   project: NonNullable<ProjectQuery['projects']>
@@ -38,6 +39,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
   nextSelectedProject,
   colorMap,
 }) => {
+  const { t } = useTranslation('common')
   const lenis = useStore(({ lenis }) => lenis)
   const { asPath } = useRouter()
 
@@ -189,7 +191,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   href={`/projects/${nextSelectedProject.sys.id}`}
                   className={s.next}
                 >
-                  {'> next'}
+                  {t('plain-text.project-id.next-label')}
                 </Link>
 
                 <div className={cn(s.overview, s.reverse)}>
