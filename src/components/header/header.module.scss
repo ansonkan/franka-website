@@ -44,19 +44,24 @@
   }
 }
 
-.invert {
-  @supports (backdrop-filter: invert(1)) {
-    & {
-      backdrop-filter: invert(1);
-      clip-path: var(--clip-path);
-    }
+@include desktop {
+  .invert {
+    @supports (backdrop-filter: invert(1)) {
+      & {
+        backdrop-filter: invert(1);
+        clip-path: var(--clip-path);
+        overflow: hidden;
+      }
 
-    .base {
-      color: transparent;
+      .base {
+        color: transparent;
+      }
     }
   }
 }
 
 .svgMask {
   position: absolute;
+  top: 0;
+  left: 0;
 }

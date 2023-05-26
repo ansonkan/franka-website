@@ -1,7 +1,7 @@
-// import { useLayoutEffect, useRef } from 'react'
 import { Fragment } from 'react'
 import { LOCALES } from '@/constants'
 import Link from 'next/link'
+import cn from 'clsx'
 import s from './header.module.scss'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
@@ -31,25 +31,29 @@ export const Header = () => {
 
   return (
     <nav className={s.header}>
-      <Link href="/" className={s.name}>
-        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-        {/* @ts-ignore */}
-        <h1 className={s.invert} style={{ '--clip-path': 'url(#name-mask)' }}>
-          <span className={s.base}>{t('plain-text.header.name')}</span>
-
+      <Link
+        href="/"
+        className={cn(s.name, s.invert)}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        style={{ '--clip-path': 'url(#name-mask)' }}
+      >
+        <h1>
           <svg className={s.svgMask}>
-            <clipPath id="name-mask">
-              <text y="16.5">
+            <defs>
+              <clipPath id="name-mask">
                 {t('plain-text.header.name')
                   .split(' ')
                   .map((word, i) => (
-                    <tspan key={word} x="0" y={`${(i + 1) * 1}rem`}>
+                    <text key={word} x="0" y={`${(i + 1) * 16.5}`}>
                       {word}
-                    </tspan>
+                    </text>
                   ))}
-              </text>
-            </clipPath>
+              </clipPath>
+            </defs>
           </svg>
+
+          <span className={s.base}>{t('plain-text.header.name')}</span>
         </h1>
       </Link>
 
