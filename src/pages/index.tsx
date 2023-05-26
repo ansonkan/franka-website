@@ -196,7 +196,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
     return () => {
       window.removeEventListener('resize', onResize)
     }
-  }, [lenis, onScroll, projects.length])
+  }, [lenis, onScroll, projects])
 
   useScroll(onScroll, [onScroll])
 
