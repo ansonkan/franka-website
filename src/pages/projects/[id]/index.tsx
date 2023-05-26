@@ -121,7 +121,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
       <main className={s.root}>
         <div className={s.intro}>
           <div className={s.info}>
-            {project.title && <h1 className={s.title}>{project.title}</h1>}
+            <h1 className={s.title}>{project.title}</h1>
 
             {project.description?.json && (
               <div className={s.meta}>
@@ -176,7 +176,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   <FillImage
                     src={photo.url}
                     alt={project.title || '' + ` ${i}`}
-                    sizes="33vw"
+                    sizes="(max-width: 800px) 100vw, 40vw"
                     color={colorMap[photo.url]}
                   />
                 </li>
@@ -208,7 +208,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                           <FillImage
                             src={preview.url}
                             alt={project.title || '' + ` ${i}`}
-                            sizes="20vw"
+                            sizes="10vw"
                             color={colorMap[preview.url]}
                           />
                         </Link>
