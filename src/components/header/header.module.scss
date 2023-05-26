@@ -9,6 +9,13 @@
   justify-content: space-between;
   z-index: 1000;
 
+  // font-size: medium;
+
+  h1 {
+    position: relative;
+    display: table-caption;
+  }
+
   .name {
     font-size: large;
     font-weight: 700;
@@ -35,4 +42,21 @@
       justify-content: flex-end;
     }
   }
+}
+
+.invert {
+  @supports (backdrop-filter: invert(1)) {
+    & {
+      backdrop-filter: invert(1);
+      clip-path: var(--clip-path);
+    }
+
+    .base {
+      color: transparent;
+    }
+  }
+}
+
+.svgMask {
+  position: absolute;
 }

@@ -29,11 +29,11 @@
     --overview-square-gap: calc(2 * var(--vh, 1vh));
   }
 
-  @include desktop {
-    --space: var(--md);
-  }
+  --normal-page-top-offset: calc(20 * var(--vh, 1vh) - var(--gap));
 
-  --normal-page-top-offset: calc(12 * var(--vh, 1vh) - var(--gap));
+  @include desktop {
+    --normal-page-top-offset: calc(12 * var(--vh, 1vh) - var(--gap));
+  }
 }
 
 html {

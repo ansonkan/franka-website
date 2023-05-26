@@ -32,10 +32,29 @@ export const Header = () => {
   return (
     <nav className={s.header}>
       <Link href="/" className={s.name}>
-        <h1>{t('plain-text.header.name')}</h1>
+        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+        {/* @ts-ignore */}
+        <h1 className={s.invert} style={{ '--clip-path': 'url(#name-mask)' }}>
+          <span className={s.base}>{t('plain-text.header.name')}</span>
+
+          <svg className={s.svgMask}>
+            <clipPath id="name-mask">
+              <text y="16.5">
+                {t('plain-text.header.name')
+                  .split(' ')
+                  .map((word, i) => (
+                    <tspan key={word} x="0" y={`${(i + 1) * 1}rem`}>
+                      {word}
+                    </tspan>
+                  ))}
+              </text>
+            </clipPath>
+          </svg>
+        </h1>
       </Link>
 
       <div className={s.links}>
+        <Link href="/">{t('plain-text.header.selected-projects')}</Link>
         <Link href="/projects">{t('plain-text.header.all-projects')}</Link>
         <Link href="/contact">{t('plain-text.header.contact')}</Link>
 
