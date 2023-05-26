@@ -30,31 +30,9 @@ export const Header = () => {
   // }, [])
 
   return (
-    <nav className={s.header}>
-      <Link
-        href="/"
-        className={cn(s.name, s.invert)}
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        style={{ '--clip-path': 'url(#name-mask)' }}
-      >
-        <h1>
-          <svg className={s.svgMask}>
-            <defs>
-              <clipPath id="name-mask">
-                {t('plain-text.header.name')
-                  .split(' ')
-                  .map((word, i) => (
-                    <text key={word} x="0" y={`${(i + 1) * 16.5}`}>
-                      {word}
-                    </text>
-                  ))}
-              </clipPath>
-            </defs>
-          </svg>
-
-          <span className={s.base}>{t('plain-text.header.name')}</span>
-        </h1>
+    <nav className={cn(s.header, 'mix-blend-invert')}>
+      <Link href="/" className={s.name}>
+        <h1>{t('plain-text.header.name')}</h1>
       </Link>
 
       <div className={s.links}>

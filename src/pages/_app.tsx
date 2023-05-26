@@ -81,7 +81,27 @@ function App({ Component, pageProps }: AppProps) {
           content={t('plain-text.head.description') || ''}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
       </Head>
 
       <div className={cn('root', roboto.className)}>
@@ -91,7 +111,7 @@ function App({ Component, pageProps }: AppProps) {
 
         <Component {...pageProps} />
 
-        <footer>
+        <footer className="mix-blend-invert">
           {footerContent && (
             <ContentfulRichText links={footerContent.links}>
               {footerContent.json}

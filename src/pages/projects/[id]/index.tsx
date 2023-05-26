@@ -134,7 +134,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
         </div>
 
         <ol className={s.overview}>
-          {project.previewsCollection?.items.map((photo, i) => {
+          {project.mediaCollection?.items.map((photo, i) => {
             if (!photo || !photo.url) return
 
             return (
@@ -148,7 +148,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                 <FillImage
                   src={photo.url}
                   alt={project.title || '' + ` ${i}`}
-                  sizes="15vw"
+                  sizes="10vw"
                   color={colorMap[photo.url]}
                 />
               </li>

@@ -9,8 +9,6 @@
   justify-content: space-between;
   z-index: 1000;
 
-  // font-size: medium;
-
   h1 {
     position: relative;
     display: table-caption;
@@ -42,26 +40,4 @@
       justify-content: flex-end;
     }
   }
-}
-
-@include desktop {
-  .invert {
-    @supports (backdrop-filter: invert(1)) {
-      & {
-        backdrop-filter: invert(1);
-        clip-path: var(--clip-path);
-        overflow: hidden;
-      }
-
-      .base {
-        color: transparent;
-      }
-    }
-  }
-}
-
-.svgMask {
-  position: absolute;
-  top: 0;
-  left: 0;
 }
