@@ -126,7 +126,13 @@ function App({ Component, pageProps }: AppProps) {
         <Header />
 
         <LazyMotion features={domAnimation}>
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence
+            mode="wait"
+            initial={false}
+            onExitComplete={() => {
+              lenis?.scrollTo(0, { immediate: true })
+            }}
+          >
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
