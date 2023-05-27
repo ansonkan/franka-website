@@ -45,37 +45,11 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
 
   const [scrollHeight, setScrollHeight] = useState(0)
 
-  // Note:
-  // In firefox, width of the gallery element does not cover the photo list,
-  // but chrome, arc, safari all work fine. So hiding the outro as a workaround
-  // until I found a solution because the outro relies on the gallery width
-  // to be positioned on the right hand side off screen
-  useEffect(() => {
-    const isDesktop = window.innerWidth >= 800
-    const isFirefox = /Firefox/i.test(navigator.userAgent)
-
-    if (isFirefox && isDesktop) {
-      outroRef.current?.style.setProperty('display', 'none')
-    }
-  }, [])
-
   useEffect(() => {
     const onResize = () => {
       if (!gsap) return
 
       const isDesktop = window.innerWidth >= 800
-      const isFirefox = /Firefox/i.test(navigator.userAgent)
-
-      const images = gsap.utils.toArray<HTMLLIElement>('.galleryImgWrapper')
-
-      // Note:
-      // Originally I could simply use the width of the gallery element
-      // but it doesn't work on firefox, so calculating the width with the photo elements
-      const galleryWidth =
-        images.reduce((acc, cur) => {
-          return acc + cur.getBoundingClientRect().width
-        }, 0) +
-        (images.length - (isFirefox ? 1 : 0)) * window.innerHeight * 0.02
 
       /**
        * Note:
@@ -87,7 +61,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
         isDesktop
           ? Math.max(
               0,
-              galleryWidth +
+              (galleryRef.current?.getBoundingClientRect().width || 0) +
                 (outroRef.current?.getBoundingClientRect().width || 0) +
                 window.innerHeight * (1 + 0.02) -
                 window.innerWidth * (1 - 0.02)
@@ -205,7 +179,15 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   className="galleryImgWrapper"
                   style={
                     width && height
-                      ? { aspectRatio: width / height }
+                      ? {
+                          // Note: aspectRatio worked fine in chrome, safari, arc but firefox
+                          // firefox needs a width here for the gallery element (the parent)
+                          // to have an expected width
+                          width: `calc(50 * var(--vh, 1vh) * ${
+                            width / height
+                          })`,
+                          // aspectRatio: width / height,
+                        }
                       : undefined
                   }
                 >
