@@ -1,35 +1,23 @@
 import 'the-new-css-reset/css/reset.css'
 import '@/styles/globals.scss'
+import { AnimatePresence, LazyMotion, m } from 'framer-motion'
 import { appWithTranslation, useTranslation } from 'next-i18next'
-import { useEffect, useLayoutEffect } from 'react'
-import { AnimatePresence, m, LazyMotion, domAnimation } from 'framer-motion'
+import { useDebug, useFrame } from '@studio-freight/hamo'
 import type { AppProps } from 'next/app'
 import { ContentfulRichText } from '@/components/contentful-rich-text'
 import Head from 'next/head'
 import { Header } from '@/components/header'
 import Lenis from '@studio-freight/lenis'
+import { LoadingOverlay } from '@/components/loading-overlay'
 import { RealViewport } from '@/components/real-viewport'
 import cn from 'clsx'
 import dynamic from 'next/dynamic'
-import gsap from 'gsap'
 import { raf } from '@studio-freight/tempus'
 import { roboto } from '@/fonts'
-import { useDebug } from '@studio-freight/hamo'
-import { useFrame } from '@studio-freight/hamo'
+import { useEffect } from 'react'
+import { useGsap } from '@/lib/use-gsap'
 import { useRouter } from 'next/router'
 import { useStore } from '@/lib/use-store'
-
-// if (typeof window !== 'undefined') {
-//   gsap.registerPlugin(ScrollTrigger)
-//   ScrollTrigger.defaults({ markers: process.env.NODE_ENV === 'development' })
-
-//   // merge rafs
-//   gsap.ticker.lagSmoothing(0)
-//   gsap.ticker.remove(gsap.updateRoot)
-//   raf.add((time: number) => {
-//     gsap.updateRoot(time / 1000)
-//   }, 0)
-// }
 
 const Stats = dynamic(
   () => import('@/components/stats').then(({ Stats }) => Stats),
@@ -40,20 +28,35 @@ function App({ Component, pageProps }: AppProps) {
   const debug = useDebug()
   const router = useRouter()
   const { t } = useTranslation('common')
-  const [lenis, setLenis] = useStore((state) => [state.lenis, state.setLenis])
+  const { lenis, setLenis, setReady, fontsReady } = useStore((state) => state)
+  const gsap = useGsap()
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    const checkFonts = async () => {
+      await document.fonts.ready
+      setReady('fonts')
+    }
+
+    if (!fontsReady) {
+      checkFonts()
+    }
+  }, [fontsReady, setReady])
+
+  useEffect(() => {
     // gsap.registerPlugin(ScrollTrigger)
     // ScrollTrigger.defaults({ markers: process.env.NODE_ENV === 'development' })
 
     // merge rafs
     // gsap.defaults({ duration: 0.3 })
+
+    if (!gsap) return
+
     gsap.ticker.lagSmoothing(0)
     gsap.ticker.remove(gsap.updateRoot)
     raf.add((time: number) => {
       gsap.updateRoot(time / 1000)
     }, 0)
-  }, [])
+  }, [gsap])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -69,17 +72,9 @@ function App({ Component, pageProps }: AppProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // useEffect(() => {
-  //   isLoading ? lenis?.stop() : lenis?.start()
-  // }, [isLoading, lenis])
-
   useEffect(() => {
     window.history.scrollRestoration = 'manual'
   }, [])
-
-  // useEffect(() => {
-  //   lenis?.scrollTo(0, { immediate: true })
-  // }, [lenis, router.asPath])
 
   useFrame((time: number) => {
     lenis?.raf(time)
@@ -120,12 +115,19 @@ function App({ Component, pageProps }: AppProps) {
         <meta name="theme-color" content="#ffffff" />
       </Head>
 
-      <div className={cn('root', roboto.className)}>
-        {debug && <Stats />}
+      <LazyMotion
+        features={() =>
+          import('@/lib/framer-motion-features').then((res) => {
+            setReady('framer-motion')
+            return res.default
+          })
+        }
+      >
+        <div className={cn('root', roboto.className)}>
+          {debug && <Stats />}
 
-        <Header />
+          <Header />
 
-        <LazyMotion features={domAnimation}>
           <AnimatePresence
             mode="wait"
             initial={false}
@@ -142,21 +144,21 @@ function App({ Component, pageProps }: AppProps) {
               <Component {...pageProps} />
             </m.div>
           </AnimatePresence>
-        </LazyMotion>
 
-        <footer className="mix-blend-invert">
-          {footerContent && (
-            // Note:
-            // Because of this occurrence, css of ContentfulRichText became global,
-            // so [slug] page css is still intact while page transitioning
-            <ContentfulRichText links={footerContent.links}>
-              {footerContent.json}
-            </ContentfulRichText>
-          )}
-        </footer>
+          <footer className="mix-blend-invert">
+            {footerContent && (
+              // Note:
+              // Because of this occurrence, css of ContentfulRichText became global,
+              // so [slug] page css is still intact while page transitioning
+              <ContentfulRichText links={footerContent.links}>
+                {footerContent.json}
+              </ContentfulRichText>
+            )}
+          </footer>
 
-        {/* {isLoading && <div className="loading-screen" />} */}
-      </div>
+          <LoadingOverlay />
+        </div>
+      </LazyMotion>
 
       <RealViewport />
     </>

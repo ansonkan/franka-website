@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { SelectedProjectsQuery } from '@/gql/graphql'
 import { getImgColor } from '@/lib/get-img-color'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
-import gsap from 'gsap'
 import { mapRange } from '@/lib/maths'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useGsap } from '@/lib/use-gsap'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
 
@@ -24,6 +24,7 @@ interface IndexProps {
 
 const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
   const [lenis] = useStore(({ lenis }) => [lenis])
+  const gsap = useGsap()
 
   const scrollDivRef = useRef<HTMLDivElement>(null)
   const baseRef = useRef<HTMLDivElement>(null)
@@ -32,6 +33,8 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
   >([])
 
   useEffect(() => {
+    if (!gsap) return
+
     lenis?.stop()
 
     const observer = new IntersectionObserver(
@@ -74,103 +77,110 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
     return () => {
       observer.disconnect()
     }
-  }, [lenis])
+  }, [gsap, lenis])
 
   const onScroll = useCallback<
     ({ scroll, resetAll }: { scroll: number; resetAll?: boolean }) => void
-  >(({ scroll, resetAll }) => {
-    const isLandscape = window.innerWidth > window.innerHeight
+  >(
+    ({ scroll, resetAll }) => {
+      if (!gsap) return
 
-    if (isLandscape) {
-      gsap.to(baseRef.current, { x: -scroll })
-      // return
-    }
+      const isLandscape = window.innerWidth > window.innerHeight
 
-    const axis = isLandscape ? window.innerHeight : window.innerWidth
+      if (isLandscape) {
+        gsap.to(baseRef.current, { x: -scroll })
+        // return
+      }
 
-    const gap = axis * 0.02
-    const squareSize = axis / 2 - gap
-    const start = -(squareSize / 2)
-    const end = -(3.5 * squareSize + 3 * gap)
-    const distance = Math.abs(end - start)
+      const axis = isLandscape ? window.innerHeight : window.innerWidth
 
-    const targets = resetAll
-      ? gsap.utils
-          .toArray<HTMLDivElement>('.previews')
-          .map((elem) => ({ previewsElement: elem }))
-      : visibleProjectsRef.current
+      const gap = axis * 0.02
+      const squareSize = axis / 2 - gap
+      const start = -(squareSize / 2)
+      const end = -(3.5 * squareSize + 3 * gap)
+      const distance = Math.abs(end - start)
 
-    targets.forEach(({ previewsElement }) => {
-      /**
-       * Note:
-       * [1, 2, 3, 1, 2, 3] can reset at index 4 but
-       * [1, 2, 1, 2, 1, 2] cannot.
-       *
-       * So this is an easy workaround, since the max
-       * preview item count is still 3 on Contentful.
-       */
-      const _distance =
-        previewsElement.dataset.previewsCount === '3'
-          ? distance
-          : distance - (squareSize + gap)
+      const targets = resetAll
+        ? gsap.utils
+            .toArray<HTMLDivElement>('.previews')
+            .map((elem) => ({ previewsElement: elem }))
+        : visibleProjectsRef.current
 
-      const displacement = mapRange(
-        0,
-        distance,
-        (scroll * 2) % _distance,
-        start,
-        end
-      )
+      targets.forEach(({ previewsElement }) => {
+        /**
+         * Note:
+         * [1, 2, 3, 1, 2, 3] can reset at index 4 but
+         * [1, 2, 1, 2, 1, 2] cannot.
+         *
+         * So this is an easy workaround, since the max
+         * preview item count is still 3 on Contentful.
+         */
+        const _distance =
+          previewsElement.dataset.previewsCount === '3'
+            ? distance
+            : distance - (squareSize + gap)
 
-      /**
-       * Note:
-       * Note: scroll * 2 make sure we at least be able to see all three previews in 1 screen.
-       *
-       * But the multiplier can't be any number, otherwise the ending translate position
-       * can be wrong, where 2 works fine.
-       */
-      gsap.to(previewsElement, {
-        x: isLandscape ? 0 : displacement,
-        y: isLandscape ? displacement : 0,
-        duration: 0,
-        ease: 'none',
+        const displacement = mapRange(
+          0,
+          distance,
+          (scroll * 2) % _distance,
+          start,
+          end
+        )
+
+        /**
+         * Note:
+         * Note: scroll * 2 make sure we at least be able to see all three previews in 1 screen.
+         *
+         * But the multiplier can't be any number, otherwise the ending translate position
+         * can be wrong, where 2 works fine.
+         */
+        gsap.to(previewsElement, {
+          x: isLandscape ? 0 : displacement,
+          y: isLandscape ? displacement : 0,
+          duration: 0,
+          ease: 'none',
+        })
+
+        // Note: this makes me quite dizzy, so let's keep the translations in the same direction
+        // if (previewsElement.dataset.translateGroup === 'odd') {
+        //   const displacement = mapRange(
+        //     0,
+        //     distance,
+        //     scroll % _distance,
+        //     start,
+        //     end
+        //   )
+        //   gsap.to(previewsElement, {
+        //     x: isLandscape ? 0 : displacement,
+        //     y: isLandscape ? displacement : 0,
+        //     duration: 0,
+        //     ease: 'none',
+        //   })
+        // } else {
+        //   const displacement = mapRange(
+        //     0,
+        //     distance,
+        //     scroll % _distance,
+        //     end,
+        //     start
+        //   )
+        //   gsap.to(previewsElement, {
+        //     x: isLandscape ? 0 : displacement,
+        //     y: isLandscape ? displacement : 0,
+        //     duration: 0,
+        //     ease: 'none',
+        //   })
+        // }
       })
-
-      // Note: this makes me quite dizzy, so let's keep the translations in the same direction
-      // if (previewsElement.dataset.translateGroup === 'odd') {
-      //   const displacement = mapRange(
-      //     0,
-      //     distance,
-      //     scroll % _distance,
-      //     start,
-      //     end
-      //   )
-      //   gsap.to(previewsElement, {
-      //     x: isLandscape ? 0 : displacement,
-      //     y: isLandscape ? displacement : 0,
-      //     duration: 0,
-      //     ease: 'none',
-      //   })
-      // } else {
-      //   const displacement = mapRange(
-      //     0,
-      //     distance,
-      //     scroll % _distance,
-      //     end,
-      //     start
-      //   )
-      //   gsap.to(previewsElement, {
-      //     x: isLandscape ? 0 : displacement,
-      //     y: isLandscape ? displacement : 0,
-      //     duration: 0,
-      //     ease: 'none',
-      //   })
-      // }
-    })
-  }, [])
+    },
+    [gsap]
+  )
 
   useEffect(() => {
     const onResize = () => {
+      if (!gsap) return
+
       const isLandscape = window.innerWidth > window.innerHeight
 
       gsap.set(scrollDivRef.current, {
@@ -195,7 +205,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
     return () => {
       window.removeEventListener('resize', onResize)
     }
-  }, [lenis, onScroll, projects.length])
+  }, [gsap, lenis, onScroll, projects.length])
 
   useScroll(onScroll, [onScroll])
 

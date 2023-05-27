@@ -13,8 +13,8 @@ import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
 import { fillColorMap } from '@/lib/get-img-color'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
-import gsap from 'gsap'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useGsap } from '@/lib/use-gsap'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
 import { useTranslation } from 'next-i18next'
@@ -38,15 +38,44 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
 }) => {
   const { t } = useTranslation('common')
   const lenis = useStore(({ lenis }) => lenis)
+  const gsap = useGsap()
 
   const galleryRef = useRef<HTMLOListElement | null>(null)
   const outroRef = useRef<HTMLDivElement | null>(null)
 
   const [scrollHeight, setScrollHeight] = useState(0)
 
+  // Note:
+  // In firefox, width of the gallery element does not cover the photo list,
+  // but chrome, arc, safari all work fine. So hiding the outro as a workaround
+  // until I found a solution because the outro relies on the gallery width
+  // to be positioned on the right hand side off screen
+  useEffect(() => {
+    const isDesktop = window.innerWidth >= 800
+    const isFirefox = /Firefox/i.test(navigator.userAgent)
+
+    if (isFirefox && isDesktop) {
+      outroRef.current?.style.setProperty('display', 'none')
+    }
+  }, [])
+
   useEffect(() => {
     const onResize = () => {
+      if (!gsap) return
+
       const isDesktop = window.innerWidth >= 800
+      const isFirefox = /Firefox/i.test(navigator.userAgent)
+
+      const images = gsap.utils.toArray<HTMLLIElement>('.galleryImgWrapper')
+
+      // Note:
+      // Originally I could simply use the width of the gallery element
+      // but it doesn't work on firefox, so calculating the width with the photo elements
+      const galleryWidth =
+        images.reduce((acc, cur) => {
+          return acc + cur.getBoundingClientRect().width
+        }, 0) +
+        (images.length - (isFirefox ? 1 : 0)) * window.innerHeight * 0.02
 
       /**
        * Note:
@@ -58,7 +87,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
         isDesktop
           ? Math.max(
               0,
-              (galleryRef.current?.getBoundingClientRect().width || 0) +
+              galleryWidth +
                 (outroRef.current?.getBoundingClientRect().width || 0) +
                 window.innerHeight * (1 + 0.02) -
                 window.innerWidth * (1 - 0.02)
@@ -79,30 +108,35 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
     return () => {
       window.removeEventListener('resize', onResize)
     }
-  }, [])
+  }, [gsap])
 
-  useScroll(({ scroll }) => {
-    const isDesktop = window.innerWidth >= 800
+  useScroll(
+    ({ scroll }) => {
+      if (!gsap) return
 
-    if (!isDesktop) return
+      const isDesktop = window.innerWidth >= 800
 
-    /**
-     * Note:
-     * If using the element references directly, whenever I left from `/projects/[id]` to other pages, I got "Cannot read properties of null (reading '_gsap')",
-     * but using classes seems fine.
-     *
-     * Same error mentioned in https://greensock.com/forums/topic/29398-cannot-read-properties-of-null-reading-_gsap/
-     * but I don't understand what was the cause still
-     *
-     * I suspect the scheduled gsap tweens break when running with these dead element references after page component unmounted
-     */
-    // gsap.to([galleryRef.current, outroRef.current], {
-    gsap.to(['.gallery', '.outro'], {
-      x: -scroll,
-      duration: 0,
-      ease: 'none',
-    })
-  })
+      if (!isDesktop) return
+
+      /**
+       * Note:
+       * If using the element references directly, whenever I left from `/projects/[id]` to other pages, I got "Cannot read properties of null (reading '_gsap')",
+       * but using classes seems fine.
+       *
+       * Same error mentioned in https://greensock.com/forums/topic/29398-cannot-read-properties-of-null-reading-_gsap/
+       * but I don't understand what was the cause still
+       *
+       * I suspect the scheduled gsap tweens break when running with these dead element references after page component unmounted
+       */
+      // gsap.to([galleryRef.current, outroRef.current], {
+      gsap.to(['.gallery', '.outro'], {
+        x: -scroll,
+        duration: 0,
+        ease: 'none',
+      })
+    },
+    [gsap]
+  )
 
   return (
     <>
