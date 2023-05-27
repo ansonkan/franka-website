@@ -34,6 +34,8 @@ const RichTextPage: NextPage<RichTextPageProps> = ({ content, colorMap }) => {
   )
 }
 
+RichTextPage.displayName = 'Rich text page'
+
 export default RichTextPage
 
 type Params = {

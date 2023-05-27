@@ -252,6 +252,8 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
   )
 }
 
+Index.displayName = 'Index page'
+
 export default Index
 
 export const getStaticProps: GetStaticProps<IndexProps> = async ({

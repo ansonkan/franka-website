@@ -237,6 +237,8 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
   )
 }
 
+ProjectPage.displayName = 'Project page'
+
 export default ProjectPage
 
 type Params = {

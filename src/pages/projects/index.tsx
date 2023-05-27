@@ -72,6 +72,8 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
   )
 }
 
+ProjectsPage.displayName = 'Projects page'
+
 export default ProjectsPage
 
 export const getStaticProps: GetStaticProps<ProjectsPageProps> = async ({
