@@ -1,8 +1,8 @@
 import 'the-new-css-reset/css/reset.css'
 import '@/styles/globals.scss'
-import { NextComponentType, NextPageContext } from 'next'
 import { appWithTranslation, useTranslation } from 'next-i18next'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
+import { AnimatePresence, m, LazyMotion, domAnimation } from 'framer-motion'
 import type { AppProps } from 'next/app'
 import { ContentfulRichText } from '@/components/contentful-rich-text'
 import Head from 'next/head'
@@ -42,16 +42,12 @@ function App({ Component, pageProps }: AppProps) {
   const { t } = useTranslation('common')
   const [lenis, setLenis] = useStore((state) => [state.lenis, state.setLenis])
 
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const prevPage =
-    useRef<NextComponentType<NextPageContext, any, any>>(Component)
-  const prevPageProps = useRef<any>(pageProps)
-
   useLayoutEffect(() => {
     // gsap.registerPlugin(ScrollTrigger)
     // ScrollTrigger.defaults({ markers: process.env.NODE_ENV === 'development' })
 
     // merge rafs
+    // gsap.defaults({ duration: 0.3 })
     gsap.ticker.lagSmoothing(0)
     gsap.ticker.remove(gsap.updateRoot)
     raf.add((time: number) => {
@@ -81,52 +77,16 @@ function App({ Component, pageProps }: AppProps) {
     window.history.scrollRestoration = 'manual'
   }, [])
 
-  useEffect(() => {
-    lenis?.scrollTo(0, { immediate: true })
-  }, [lenis, router.asPath])
+  // useEffect(() => {
+  //   lenis?.scrollTo(0, { immediate: true })
+  // }, [lenis, router.asPath])
 
   useFrame((time: number) => {
     lenis?.raf(time)
   })
 
-  useEffect(() => {
-    const onRouteChangeStart = () => {
-      setIsTransitioning(true)
-    }
-
-    const onRouteChangeComplete = () => {
-      console.log('START counting 1s...')
-      setTimeout(() => {
-        prevPage.current = Component
-        prevPageProps.current = pageProps
-        console.log('DONE counting 1s!!!')
-        setIsTransitioning(false)
-      }, 1000)
-    }
-
-    const onRouteChangeError = () => {
-      setIsTransitioning(false)
-    }
-
-    router.events.on('routeChangeStart', onRouteChangeStart)
-    router.events.on('routeChangeComplete', onRouteChangeComplete)
-    router.events.on('routeChangeError', onRouteChangeError)
-
-    return () => {
-      router.events.off('routeChangeStart', onRouteChangeStart)
-      router.events.off('routeChangeComplete', onRouteChangeComplete)
-      router.events.off('routeChangeError', onRouteChangeError)
-    }
-  }, [Component, pageProps, router.events])
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const footerContent: any = t('rich-text.footer', { returnObjects: true })
-
-  const Page = !isTransitioning ? Component : prevPage.current
-  // const Page = !isTransitioning ? prevPage.current : prevPage.current
-  const currentPageProps = !isTransitioning ? pageProps : prevPageProps.current
-
-  console.log(Page.displayName, currentPageProps, isTransitioning)
 
   return (
     <>
@@ -165,11 +125,24 @@ function App({ Component, pageProps }: AppProps) {
 
         <Header />
 
-        {/* <Component {...pageProps} /> */}
-        <Page {...currentPageProps} />
+        <LazyMotion features={domAnimation}>
+          <AnimatePresence mode="wait" initial={false}>
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              key={router.asPath}
+            >
+              <Component {...pageProps} />
+            </m.div>
+          </AnimatePresence>
+        </LazyMotion>
 
         <footer className="mix-blend-invert">
           {footerContent && (
+            // Note:
+            // Because of this occurrence, css of ContentfulRichText became global,
+            // so [slug] page css is still intact while page transitioning
             <ContentfulRichText links={footerContent.links}>
               {footerContent.json}
             </ContentfulRichText>

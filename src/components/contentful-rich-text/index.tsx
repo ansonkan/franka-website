@@ -126,7 +126,7 @@ export const ContentfulRichText = ({
 
         // Note: internal
         return (
-          <Link href={uri} className={s.u}>
+          <Link href={uri} className={s.u} scroll={false}>
             {children}
           </Link>
         )

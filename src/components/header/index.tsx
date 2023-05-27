@@ -31,14 +31,22 @@ export const Header = () => {
 
   return (
     <nav className={cn(s.header, 'mix-blend-invert')}>
-      <Link href="/" className={s.name}>
+      <Link href="/" className={s.name} scroll={false}>
         <h1>{t('plain-text.header.name')}</h1>
       </Link>
 
       <div className={s.links}>
-        <Link href="/">{t('plain-text.header.selected-projects')}</Link>
-        <Link href="/projects">{t('plain-text.header.all-projects')}</Link>
-        <Link href="/contact">{t('plain-text.header.contact')}</Link>
+        <Link href="/" scroll={false}>
+          {t('plain-text.header.selected-projects')}
+        </Link>
+
+        <Link href="/projects" scroll={false}>
+          {t('plain-text.header.all-projects')}
+        </Link>
+
+        <Link href="/contact" scroll={false}>
+          {t('plain-text.header.contact')}
+        </Link>
 
         <div className={s.locales}>
           {LOCALES.map((l, i) => {
@@ -49,7 +57,7 @@ export const Header = () => {
                 {locale === l ? (
                   <p>{t(`plain-text.header.locales.${l}`)}</p>
                 ) : (
-                  <Link href={asPath} locale={l}>
+                  <Link href={asPath} locale={l} scroll={false}>
                     {t(`plain-text.header.locales.${l}`)}
                   </Link>
                 )}

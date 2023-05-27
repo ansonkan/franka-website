@@ -7,7 +7,6 @@ import { getImgColor } from '@/lib/get-img-color'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
 import gsap from 'gsap'
 import { mapRange } from '@/lib/maths'
-import s from './index.module.scss'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
@@ -24,7 +23,7 @@ interface IndexProps {
 }
 
 const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
-  const [lenis] = useStore(({ lenis, setLenis }) => [lenis, setLenis])
+  const [lenis] = useStore(({ lenis }) => [lenis])
 
   const scrollDivRef = useRef<HTMLDivElement>(null)
   const baseRef = useRef<HTMLDivElement>(null)
@@ -50,7 +49,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
             visibleProjectsRef.current.push({
               projectElement: target as HTMLDivElement,
               previewsElement: target.querySelector(
-                `.${s.previews}`
+                '.previews'
               ) as HTMLDivElement,
             })
           } else {
@@ -66,7 +65,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
       }
     )
 
-    gsap.utils.toArray<HTMLDivElement>(`.${s.project}`).forEach((project) => {
+    gsap.utils.toArray<HTMLDivElement>('.project').forEach((project) => {
       observer.observe(project)
     })
 
@@ -97,7 +96,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
 
     const targets = resetAll
       ? gsap.utils
-          .toArray<HTMLDivElement>(`.${s.previews}`)
+          .toArray<HTMLDivElement>('.previews')
           .map((elem) => ({ previewsElement: elem }))
       : visibleProjectsRef.current
 
@@ -196,57 +195,62 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
     return () => {
       window.removeEventListener('resize', onResize)
     }
-  }, [lenis, onScroll, projects])
+  }, [lenis, onScroll, projects.length])
 
   useScroll(onScroll, [onScroll])
 
   return (
-    <main>
-      <div ref={scrollDivRef} />
+    <main className="home-page">
+      <div>
+        <div ref={scrollDivRef} />
 
-      <div className={s.base} ref={baseRef}>
-        {projects.map((project, i) => {
-          if (!project || !project.previewsCollection?.items.length) return
+        <div className="base" ref={baseRef}>
+          {projects.map((project, i) => {
+            if (!project || !project.previewsCollection?.items.length) return
 
-          const { sys, previewsCollection, title } = project
+            const { sys, previewsCollection, title } = project
 
-          const previews = [1, 2, 3, 4, 5, 6].map(
-            (index) =>
-              previewsCollection.items[index % previewsCollection.items.length]
-          )
+            const previews = [1, 2, 3, 4, 5, 6].map(
+              (index) =>
+                previewsCollection.items[
+                  index % previewsCollection.items.length
+                ]
+            )
 
-          return (
-            <article className={s.project} key={sys.id} data-project-index={i}>
-              <div className={s.previewWrapper}>
-                <div
-                  className={s.previews}
-                  data-previews-count={previewsCollection.items.length}
-                  data-translate-group={i % 2 === 0 ? 'even' : 'odd'}
-                >
-                  {previews.map((preview, i) => {
-                    if (!preview || !preview.url) return
+            return (
+              <article className="project" key={sys.id} data-project-index={i}>
+                <div className="previewWrapper">
+                  <div
+                    className="previews"
+                    data-previews-count={previewsCollection.items.length}
+                    data-translate-group={i % 2 === 0 ? 'even' : 'odd'}
+                  >
+                    {previews.map((preview, i) => {
+                      if (!preview || !preview.url) return
 
-                    return (
-                      <Link
-                        href={`/projects/${sys.id}`}
-                        className={s.item}
-                        // Note: could have repeated `id` for repeated images, so need to add `i`
-                        key={preview.sys.id + i}
-                      >
-                        <FillImage
-                          src={preview.url}
-                          alt={title || ''}
-                          sizes="25vw"
-                          color={colorMap[preview.url]}
-                        />
-                      </Link>
-                    )
-                  })}
+                      return (
+                        <Link
+                          href={`/projects/${sys.id}`}
+                          className="item"
+                          // Note: could have repeated `id` for repeated images, so need to add `i`
+                          key={preview.sys.id + i}
+                          scroll={false}
+                        >
+                          <FillImage
+                            src={preview.url}
+                            alt={title || ''}
+                            sizes="25vw"
+                            color={colorMap[preview.url]}
+                          />
+                        </Link>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-            </article>
-          )
-        })}
+              </article>
+            )
+          })}
+        </div>
       </div>
     </main>
   )

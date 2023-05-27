@@ -5,19 +5,16 @@ import {
   ProjectsDocument,
   SelectedProjectsQuery,
 } from '@/gql/graphql'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ContentfulRichText } from '@/components/contentful-rich-text'
 import { FillImage } from '@/components/fill-image'
 import { LOCALES } from '@/constants'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
-import cn from 'clsx'
 import { fillColorMap } from '@/lib/get-img-color'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
 import gsap from 'gsap'
-import s from './projects_id.module.scss'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useRouter } from 'next/router'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
 import { useTranslation } from 'next-i18next'
@@ -41,14 +38,13 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
 }) => {
   const { t } = useTranslation('common')
   const lenis = useStore(({ lenis }) => lenis)
-  const { asPath } = useRouter()
 
   const galleryRef = useRef<HTMLOListElement | null>(null)
   const outroRef = useRef<HTMLDivElement | null>(null)
 
   const [scrollHeight, setScrollHeight] = useState(0)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const onResize = () => {
       const isDesktop = window.innerWidth >= 800
 
@@ -83,13 +79,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
     return () => {
       window.removeEventListener('resize', onResize)
     }
-
-    /**
-     * Note:
-     * This page component is not unmounted if changing to another `/projects/[id]` page,
-     * so this needs to react to the path
-     */
-  }, [asPath])
+  }, [])
 
   useScroll(({ scroll }) => {
     const isDesktop = window.innerWidth >= 800
@@ -107,7 +97,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
      * I suspect the scheduled gsap tweens break when running with these dead element references after page component unmounted
      */
     // gsap.to([galleryRef.current, outroRef.current], {
-    gsap.to([`.${s.gallery}`, `.${s.outro}`], {
+    gsap.to(['.gallery', '.outro'], {
       x: -scroll,
       duration: 0,
       ease: 'none',
@@ -118,13 +108,13 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
     <>
       <div style={{ height: scrollHeight }} />
 
-      <main className={s.root}>
-        <div className={s.intro}>
-          <div className={s.info}>
-            <h1 className={s.title}>{project.title}</h1>
+      <main className="projects_id-page">
+        <div className="intro">
+          <div className="info">
+            <h1 className="title">{project.title}</h1>
 
             {project.description?.json && (
-              <div className={s.meta}>
+              <div className="meta">
                 <ContentfulRichText>
                   {project.description.json}
                 </ContentfulRichText>
@@ -134,7 +124,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
         </div>
 
         <ol
-          className={s.overview}
+          className="overview"
           // Note:
           /**
            * Note:
@@ -152,9 +142,9 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
             return (
               <li
                 key={photo.sys.id}
-                className={s.overviewImgWrapper}
+                className="overviewImgWrapper"
                 onClick={() => {
-                  lenis?.scrollTo(`.${s.galleryImgWrapper}:nth-child(${i + 1})`)
+                  lenis?.scrollTo(`.galleryImgWrapper:nth-child(${i + 1})`)
                 }}
               >
                 <FillImage
@@ -168,8 +158,8 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
           })}
         </ol>
 
-        <div className={s.two}>
-          <ol className={s.gallery} ref={galleryRef}>
+        <div className="two">
+          <ol className="gallery" ref={galleryRef}>
             {project.mediaCollection?.items.map((photo, i) => {
               if (!photo || !photo.url) return
 
@@ -178,7 +168,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
               return (
                 <li
                   key={photo.sys.id}
-                  className={s.galleryImgWrapper}
+                  className="galleryImgWrapper"
                   style={
                     width && height
                       ? { aspectRatio: width / height }
@@ -196,17 +186,18 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
             })}
           </ol>
 
-          <div className={s.outro} ref={outroRef}>
+          <div className="outro" ref={outroRef}>
             {nextSelectedProject?.previewsCollection?.items.length && (
               <>
                 <Link
                   href={`/projects/${nextSelectedProject.sys.id}`}
-                  className={s.next}
+                  className="next"
+                  scroll={false}
                 >
                   {t('plain-text.project-id.next-label')}
                 </Link>
 
-                <div className={cn(s.overview, s.reverse)}>
+                <div className="overview reverse">
                   {nextSelectedProject?.previewsCollection?.items.map(
                     (preview, i) => {
                       if (!preview || !preview.url) return
@@ -215,7 +206,8 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                         <Link
                           key={preview.sys.id}
                           href={`/projects/${nextSelectedProject.sys.id}`}
-                          className={s.overviewImgWrapper}
+                          className="overviewImgWrapper"
+                          scroll={false}
                         >
                           <FillImage
                             src={preview.url}

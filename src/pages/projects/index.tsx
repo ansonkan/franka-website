@@ -4,7 +4,6 @@ import { FillImage } from '@/components/fill-image'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
 import { getImgColor } from '@/lib/get-img-color'
-import s from './projects.module.scss'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
@@ -17,8 +16,8 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
   const { t } = useTranslation('common')
 
   return (
-    <main className="normalPageRoot">
-      <table className={s.table}>
+    <main className="projects-page normalPageRoot">
+      <table className="table">
         <thead>
           <tr>
             <th>{t('plain-text.projects.table.header.title')}</th>
@@ -37,20 +36,20 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
             return (
               <tr key={sys.id}>
                 <td>
-                  <Link href={href}>
-                    <h2 className={s.title}>{title}</h2>
+                  <Link href={href} scroll={false}>
+                    <h2 className="title">{title}</h2>
                   </Link>
                 </td>
 
                 <td>
-                  <Link href={href} className={s.previewsCol}>
+                  <Link href={href} className="previewsCol" scroll={false}>
                     {previewsCollection?.items.map((photo, i) => {
                       if (!photo || !photo.url) return
 
                       return (
                         <figure
                           key={photo.sys.id}
-                          className={s.previewsImgWrapper}
+                          className="previewsImgWrapper"
                         >
                           <FillImage
                             src={photo.url}

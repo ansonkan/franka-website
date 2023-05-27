@@ -1,5 +1,13 @@
 @import './_variables.scss';
 @import './_functions.scss';
+// Note:
+// AnimatePresence + usePresence handles the page transition fine
+// but Next.js would still unload all css bundled for a page after route changed.
+@import './pages/_home.scss';
+@import './pages/_projects.scss';
+@import './pages/_projects_id.scss';
+// Note: the [slug] page css is not included here because it only has ContentfulRichText that has style,
+// where it is imported in _app already, so its style is basically global
 
 :root {
   --sm: 4px;
