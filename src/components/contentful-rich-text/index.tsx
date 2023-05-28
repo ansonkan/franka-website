@@ -118,7 +118,7 @@ export const ContentfulRichText = ({
         if (uri.startsWith('http')) {
           // Note: external
           return (
-            <a href={node.data.uri} className={s.u}>
+            <a href={node.data.uri} className={s.u} rel="nofollow">
               {children}
             </a>
           )

@@ -5,9 +5,9 @@ import {
   RichTextPagesDocument,
 } from '@/gql/graphql'
 import { ContentfulRichText } from '@/components/contentful-rich-text'
-import { LOCALES } from '@/constants'
 import { client } from '@/lib/contentful-gql'
 import { fillColorMap } from '@/lib/get-img-color'
+import { i18n } from '~/next-i18next.config'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 interface RichTextPageProps {
@@ -54,7 +54,7 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
           params: { slug: item!.slug as string },
         })) || []
     ).reduce((acc, cur) => {
-      LOCALES.forEach((l) => {
+      i18n.locales.forEach((l) => {
         acc = [...acc, { ...cur, locale: l }]
       })
 

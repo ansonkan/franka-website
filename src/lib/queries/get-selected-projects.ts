@@ -1,13 +1,12 @@
 import { SelectedProjectsDocument, SelectedProjectsQuery } from '@/gql/graphql'
-import { LOCALES } from '@/constants'
 import { client } from '@/lib/contentful-gql'
+import { i18n } from '~/next-i18next.config'
 
 const selectedProjects: Record<string, SelectedProjectsQuery | undefined> = {}
 
-export async function getSelectedProjects(locale = 'en-US') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (!LOCALES.includes(locale as any)) {
-    locale = LOCALES[0]
+export async function getSelectedProjects(locale: string) {
+  if (!i18n.locales.includes(locale)) {
+    locale = i18n.defaultLocale
   }
 
   if (!selectedProjects[locale]) {

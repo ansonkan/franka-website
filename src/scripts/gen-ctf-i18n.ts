@@ -9,9 +9,9 @@ import {
   I18nRichTextDocument,
   I18nRichTextKeysDocument,
 } from '../gql/graphql'
-import { LOCALES } from '../constants'
 import { client } from '../lib/contentful-gql'
 import fs from 'node:fs'
+import { i18n } from '../../next-i18next.config'
 import { join } from 'node:path'
 
 genI18n()
@@ -24,7 +24,7 @@ async function genI18n() {
   const i18nRichTextKeysResult = await client.request(I18nRichTextKeysDocument)
   const len = i18nRichTextKeysResult.i18NCollection?.items.length || 0
 
-  for (const locale of LOCALES) {
+  for (const locale of i18n.locales) {
     // Note: Plain text
     const { inPlainTextCollection } = await client.request(
       I18nPlainTextDocument,

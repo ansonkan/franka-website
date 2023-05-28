@@ -8,11 +8,11 @@ import {
 import { useEffect, useRef, useState } from 'react'
 import { ContentfulRichText } from '@/components/contentful-rich-text'
 import { FillImage } from '@/components/fill-image'
-import { LOCALES } from '@/constants'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
 import { fillColorMap } from '@/lib/get-img-color'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
+import { i18n } from '~/next-i18next.config'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useGsap } from '@/lib/use-gsap'
 import { useScroll } from '@/lib/use-scroll'
@@ -265,7 +265,7 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
           params: { id: item!.sys.id },
         })) || []
     ).reduce((acc, cur) => {
-      LOCALES.forEach((l) => {
+      i18n.locales.forEach((l) => {
         acc = [...acc, { ...cur, locale: l }]
       })
 

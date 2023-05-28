@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
-import { LOCALES } from '@/constants'
 import Link from 'next/link'
 import cn from 'clsx'
+import { i18n } from '~/next-i18next.config'
 import s from './header.module.scss'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
@@ -49,7 +49,7 @@ export const Header = () => {
         </Link>
 
         <div className={s.locales}>
-          {LOCALES.map((l, i) => {
+          {i18n.locales.map((l, i) => {
             return (
               <Fragment key={l}>
                 {i > 0 && ' / '}
