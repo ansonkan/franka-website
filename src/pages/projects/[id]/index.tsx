@@ -183,10 +183,12 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                           // Note: aspectRatio worked fine in chrome, safari, arc but firefox
                           // firefox needs a width here for the gallery element (the parent)
                           // to have an expected width
-                          width: `calc(50 * var(--vh, 1vh) * ${
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          // @ts-ignore
+                          '--desktop-width': `calc(50 * var(--vh, 1vh) * ${
                             width / height
                           })`,
-                          // aspectRatio: width / height,
+                          aspectRatio: width / height,
                         }
                       : undefined
                   }

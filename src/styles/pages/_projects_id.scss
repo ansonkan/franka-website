@@ -190,7 +190,7 @@
       aspect-ratio: 1;
 
       @include desktop {
-        width: auto;
+        width: var(--desktop-width, 'auto');
         height: 100%;
       }
 
