@@ -4,6 +4,8 @@ import { FillImage } from '@/components/fill-image'
 import Link from 'next/link'
 import { client } from '@/lib/contentful-gql'
 import { getImgColor } from '@/lib/get-img-color'
+import { m } from 'framer-motion'
+import { mBlurProps } from '@/constants'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
@@ -17,56 +19,58 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
 
   return (
     <main className="projects-page normalPageRoot">
-      <table className="table">
-        <thead>
-          <tr>
-            <th>{t('plain-text.projects.table.header.title')}</th>
-            <th>{t('plain-text.projects.table.header.previews')}</th>
-          </tr>
-        </thead>
+      <m.div {...mBlurProps}>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>{t('plain-text.projects.table.header.title')}</th>
+              <th>{t('plain-text.projects.table.header.previews')}</th>
+            </tr>
+          </thead>
 
-        <tbody>
-          {projects.projectsCollection?.items.map((project) => {
-            if (!project) return
+          <tbody>
+            {projects.projectsCollection?.items.map((project) => {
+              if (!project) return
 
-            const { sys, title, previewsCollection } = project
+              const { sys, title, previewsCollection } = project
 
-            const href = `/projects/${sys.id}`
+              const href = `/projects/${sys.id}`
 
-            return (
-              <tr key={sys.id}>
-                <td>
-                  <Link href={href} scroll={false}>
-                    <h2 className="title">{title}</h2>
-                  </Link>
-                </td>
+              return (
+                <tr key={sys.id}>
+                  <td>
+                    <Link href={href} scroll={false}>
+                      <h2 className="title">{title}</h2>
+                    </Link>
+                  </td>
 
-                <td>
-                  <Link href={href} className="previewsCol" scroll={false}>
-                    {previewsCollection?.items.map((photo, i) => {
-                      if (!photo || !photo.url) return
+                  <td>
+                    <Link href={href} className="previewsCol" scroll={false}>
+                      {previewsCollection?.items.map((photo, i) => {
+                        if (!photo || !photo.url) return
 
-                      return (
-                        <figure
-                          key={photo.sys.id}
-                          className="previewsImgWrapper"
-                        >
-                          <FillImage
-                            src={photo.url}
-                            alt={`${title || ''} ${i}`}
-                            sizes="15vw"
-                            color={colorMap[photo.url]}
-                          />
-                        </figure>
-                      )
-                    })}
-                  </Link>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+                        return (
+                          <figure
+                            key={photo.sys.id}
+                            className="previewsImgWrapper"
+                          >
+                            <FillImage
+                              src={photo.url}
+                              alt={`${title || ''} ${i}`}
+                              sizes="15vw"
+                              color={colorMap[photo.url]}
+                            />
+                          </figure>
+                        )
+                      })}
+                    </Link>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </m.div>
     </main>
   )
 }

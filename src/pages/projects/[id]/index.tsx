@@ -13,6 +13,8 @@ import { client } from '@/lib/contentful-gql'
 import { fillColorMap } from '@/lib/get-img-color'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
 import { i18n } from '~/next-i18next.config'
+import { m } from 'framer-motion'
+import { mBlurProps } from '@/constants'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useGsap } from '@/lib/use-gsap'
 import { useScroll } from '@/lib/use-scroll'
@@ -117,7 +119,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
       <div style={{ height: scrollHeight }} />
 
       <main className="projects_id-page">
-        <div className="intro">
+        <m.div className="intro" {...mBlurProps}>
           <div className="info">
             <h1 className="title">{project.title}</h1>
 
@@ -129,9 +131,9 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
               </div>
             )}
           </div>
-        </div>
+        </m.div>
 
-        <ol
+        <m.ol
           className="overview"
           // Note:
           /**
@@ -143,6 +145,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
           onTouchStart={() => lenis?.stop()}
           onTouchCancel={() => lenis?.start()}
           onTouchEnd={() => lenis?.start()}
+          {...mBlurProps}
         >
           {project.mediaCollection?.items.map((photo, i) => {
             if (!photo || !photo.url) return
@@ -164,9 +167,9 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
               </li>
             )
           })}
-        </ol>
+        </m.ol>
 
-        <div className="two">
+        <m.div className="two" {...mBlurProps}>
           <ol className="gallery" ref={galleryRef}>
             {project.mediaCollection?.items.map((photo, i) => {
               if (!photo || !photo.url) return
@@ -241,7 +244,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
               </>
             )}
           </div>
-        </div>
+        </m.div>
       </main>
     </>
   )

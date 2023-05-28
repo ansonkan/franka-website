@@ -26,5 +26,9 @@
         "@typescript-eslint/no-var-requires": "off"
       }
     }
+  ],
+  "ignorePatterns": [
+    // auto-generated
+    "src/gql/**/*"
   ]
 }

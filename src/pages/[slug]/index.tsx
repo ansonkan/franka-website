@@ -8,6 +8,8 @@ import { ContentfulRichText } from '@/components/contentful-rich-text'
 import { client } from '@/lib/contentful-gql'
 import { fillColorMap } from '@/lib/get-img-color'
 import { i18n } from '~/next-i18next.config'
+import { m } from 'framer-motion'
+import { mBlurProps } from '@/constants'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 interface RichTextPageProps {
@@ -21,7 +23,7 @@ interface RichTextPageProps {
 
 const RichTextPage: NextPage<RichTextPageProps> = ({ content, colorMap }) => {
   return (
-    <main className="normalPageRoot">
+    <m.main className="normalPageRoot" {...mBlurProps}>
       <ContentfulRichText
         // Note: I already used the same generated type for `links`... idk why still the type is broken. Don't care for now
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,7 +32,7 @@ const RichTextPage: NextPage<RichTextPageProps> = ({ content, colorMap }) => {
       >
         {content.json}
       </ContentfulRichText>
-    </main>
+    </m.main>
   )
 }
 

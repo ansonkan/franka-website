@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { SelectedProjectsQuery } from '@/gql/graphql'
 import { getImgColor } from '@/lib/get-img-color'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
+import { m } from 'framer-motion'
+import { mBlurProps } from '@/constants'
 import { mapRange } from '@/lib/maths'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useGsap } from '@/lib/use-gsap'
@@ -211,57 +213,53 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
 
   return (
     <main className="home-page">
-      <div>
-        <div ref={scrollDivRef} />
+      <div ref={scrollDivRef} />
 
-        <div className="base" ref={baseRef}>
-          {projects.map((project, i) => {
-            if (!project || !project.previewsCollection?.items.length) return
+      <m.div className="base" ref={baseRef} {...mBlurProps}>
+        {projects.map((project, i) => {
+          if (!project || !project.previewsCollection?.items.length) return
 
-            const { sys, previewsCollection, title } = project
+          const { sys, previewsCollection, title } = project
 
-            const previews = [1, 2, 3, 4, 5, 6].map(
-              (index) =>
-                previewsCollection.items[
-                  index % previewsCollection.items.length
-                ]
-            )
+          const previews = [1, 2, 3, 4, 5, 6].map(
+            (index) =>
+              previewsCollection.items[index % previewsCollection.items.length]
+          )
 
-            return (
-              <article className="project" key={sys.id} data-project-index={i}>
-                <div className="previewWrapper">
-                  <div
-                    className="previews"
-                    data-previews-count={previewsCollection.items.length}
-                    data-translate-group={i % 2 === 0 ? 'even' : 'odd'}
-                  >
-                    {previews.map((preview, i) => {
-                      if (!preview || !preview.url) return
+          return (
+            <article className="project" key={sys.id} data-project-index={i}>
+              <div className="previewWrapper">
+                <div
+                  className="previews"
+                  data-previews-count={previewsCollection.items.length}
+                  data-translate-group={i % 2 === 0 ? 'even' : 'odd'}
+                >
+                  {previews.map((preview, i) => {
+                    if (!preview || !preview.url) return
 
-                      return (
-                        <Link
-                          href={`/projects/${sys.id}`}
-                          className="item"
-                          // Note: could have repeated `id` for repeated images, so need to add `i`
-                          key={preview.sys.id + i}
-                          scroll={false}
-                        >
-                          <FillImage
-                            src={preview.url}
-                            alt={title || ''}
-                            sizes="25vw"
-                            color={colorMap[preview.url]}
-                          />
-                        </Link>
-                      )
-                    })}
-                  </div>
+                    return (
+                      <Link
+                        href={`/projects/${sys.id}`}
+                        className="item"
+                        // Note: could have repeated `id` for repeated images, so need to add `i`
+                        key={preview.sys.id + i}
+                        scroll={false}
+                      >
+                        <FillImage
+                          src={preview.url}
+                          alt={title || ''}
+                          sizes="25vw"
+                          color={colorMap[preview.url]}
+                        />
+                      </Link>
+                    )
+                  })}
                 </div>
-              </article>
-            )
-          })}
-        </div>
-      </div>
+              </div>
+            </article>
+          )
+        })}
+      </m.div>
     </main>
   )
 }

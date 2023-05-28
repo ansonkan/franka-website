@@ -15,25 +15,6 @@ export const LoadingOverlay = () => {
   const [isVisible, setIsVisible] = useState(!isReady)
 
   useEffect(() => {
-    const onScroll = (event: Event) => {
-      event.preventDefault()
-      lenis?.scrollTo(0, { immediate: true })
-    }
-
-    if (!isVisible) {
-      window.removeEventListener('scroll', onScroll)
-      lenis?.start()
-    } else {
-      lenis?.stop()
-      window.addEventListener('scroll', onScroll)
-    }
-
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-    }
-  }, [isVisible, lenis])
-
-  useEffect(() => {
     if (isReady) {
       setTimeout(() => {
         const ease = 'power2.inOut'
@@ -72,11 +53,17 @@ export const LoadingOverlay = () => {
           .fromTo(
             `.${s.loadingScreen}`,
             { '--progress': '100%' },
-            { '--progress': '0%', ease }
+            {
+              '--progress': '0%',
+              ease,
+              onStart: () => {
+                lenis?.scrollTo(0, { force: true })
+              },
+            }
           )
       }, 500)
     }
-  }, [gsap, isReady])
+  }, [gsap, isReady, lenis])
 
   if (!isVisible) return <></>
 
