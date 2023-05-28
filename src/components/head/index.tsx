@@ -62,6 +62,18 @@ export const Head = () => {
         property="og:image"
         content={`${t('plain-text.head.origin')}/mstile-70x70.png`}
       />
+
+      {/* TODO */}
+      <meta name="twitter:title" content={t('plain-text.head.title') || ''} />
+      <meta
+        name="twitter:description"
+        content={t('plain-text.head.description') || ''}
+      />
+      <meta
+        name="twitter:image"
+        content={`${t('plain-text.head.origin')}/mstile-70x70.png`}
+      />
+      <meta name="twitter:card" content="summary_large_image" />
     </NextHead>
   )
 }
