@@ -6,6 +6,7 @@
 @import './pages/_home.scss';
 @import './pages/_projects.scss';
 @import './pages/_projects_id.scss';
+@import './pages/_error.scss';
 // Note: the [slug] page css is not included here because it only has ContentfulRichText that has style,
 // where it is imported in _app already, so its style is basically global
 

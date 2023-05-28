@@ -1,0 +1,23 @@
+.error-page {
+  position: relative;
+  width: 100vw;
+  min-height: calc(100 * var(--vh, 1vh));
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .base {
+    text-align: center;
+    word-break: break-all;
+
+    .error {
+      font-size: max(10vw, 100px);
+      font-weight: 700;
+    }
+
+    .description {
+      font-style: italic;
+    }
+  }
+}
