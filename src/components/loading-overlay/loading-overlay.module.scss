@@ -26,6 +26,8 @@
     width: 80px;
     height: 80px;
 
+    animation: 0.3s ease-in 0s fade-in;
+
     div {
       position: absolute;
       top: 33px;
@@ -51,6 +53,16 @@
         left: 56px;
         animation: lds-ellipsis3 1.3s infinite;
       }
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
     }
   }
 
