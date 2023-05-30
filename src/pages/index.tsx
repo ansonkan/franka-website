@@ -248,7 +248,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
                         <FillImage
                           src={preview.url}
                           alt={title || ''}
-                          sizes="25vw"
+                          sizes="(max-width: 800px) 45vw, 35vw"
                           color={colorMap[preview.url]}
                         />
                       </Link>
