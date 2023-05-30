@@ -5,7 +5,7 @@ const colorMap: Record<string, string> = {}
 
 export const getImgColor = async (url: string) => {
   if (!colorMap[url]) {
-    const imageRes = await fetch(`${url}?w=10&q=75`)
+    const imageRes = await fetch(`${url}?w=10&q=10`)
     // Convert the HTTP result into a buffer
     const arrayBuffer = await imageRes.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
