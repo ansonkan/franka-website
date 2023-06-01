@@ -11,8 +11,8 @@ export function squareLoader(props: ImageLoaderProps) {
   return url.href
 }
 
-const DEFAULT_QUALITY_MOBILE = '45'
-const DEFAULT_QUALITY_DESKTOP = '65'
+const DEFAULT_QUALITY_MOBILE = '40'
+const DEFAULT_QUALITY_DESKTOP = '60'
 
 function getURL({ src, quality, width }: ImageLoaderProps) {
   const url = new URL(src)

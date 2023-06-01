@@ -161,7 +161,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                 <FillImage
                   src={photo.url}
                   alt={project.title || '' + ` ${i}`}
-                  sizes="10vw"
+                  sizes="20vw"
                   color={colorMap[photo.url]}
                   quality={30}
                   isSquare
@@ -201,7 +201,11 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   <FillImage
                     src={photo.url}
                     alt={project.title || '' + ` ${i}`}
-                    sizes="(max-width: 800px) 100vw, 40vw"
+                    sizes={`(min-width: 800px) ${
+                      width && height
+                        ? `calc(40vh * ${width / height})`
+                        : '60vw'
+                    }, 60vw`}
                     color={colorMap[photo.url]}
                   />
                 </li>
@@ -235,7 +239,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                           <FillImage
                             src={preview.url}
                             alt={project.title || '' + ` ${i}`}
-                            sizes="10vw"
+                            sizes="20vw"
                             color={colorMap[preview.url]}
                             quality={30}
                             isSquare

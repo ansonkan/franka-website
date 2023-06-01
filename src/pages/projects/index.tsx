@@ -57,7 +57,7 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
                             <FillImage
                               src={photo.url}
                               alt={`${title || ''} ${i}`}
-                              sizes="15vw"
+                              sizes="(min-width: 800px) 10vh, 50px"
                               color={colorMap[photo.url]}
                               quality={30}
                               isSquare
