@@ -12,7 +12,6 @@ import { LoadingOverlay } from '@/components/loading-overlay'
 import { RealViewport } from '@/components/real-viewport'
 import cn from 'clsx'
 import dynamic from 'next/dynamic'
-import { raf } from '@studio-freight/tempus'
 import { roboto } from '@/fonts'
 import { useEffect } from 'react'
 import { useGsap } from '@/lib/use-gsap'
@@ -53,9 +52,9 @@ function App({ Component, pageProps }: AppProps) {
 
     gsap.ticker.lagSmoothing(0)
     gsap.ticker.remove(gsap.updateRoot)
-    raf.add((time: number) => {
-      gsap.updateRoot(time / 1000)
-    }, 0)
+    // raf.add((time: number) => {
+    //   gsap.updateRoot(time / 1000)
+    // }, 0)
   }, [gsap])
 
   useEffect(() => {
@@ -77,6 +76,7 @@ function App({ Component, pageProps }: AppProps) {
   }, [])
 
   useFrame((time: number) => {
+    gsap?.updateRoot(time / 1000)
     lenis?.raf(time)
   })
 
