@@ -59,6 +59,8 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
                               alt={`${title || ''} ${i}`}
                               sizes="15vw"
                               color={colorMap[photo.url]}
+                              quality={30}
+                              isSquare
                             />
                           </figure>
                         )

@@ -1,4 +1,5 @@
 import { ComponentProps, memo, useState } from 'react'
+import defaultLoader, { squareLoader } from '@/lib/contentful-loader'
 import Image from 'next/image'
 import cn from 'clsx'
 import s from './fill-image.module.scss'
@@ -9,18 +10,11 @@ export interface FillImageProps
     'width' | 'height' | 'fill' | 'placeholder' | 'blurDataURL'
   > {
   color?: string
-}
-
-export interface FillImageProps
-  extends Omit<
-    ComponentProps<typeof Image>,
-    'width' | 'height' | 'fill' | 'placeholder' | 'blurDataURL'
-  > {
-  color?: string
+  isSquare?: boolean
 }
 
 export const FillImage = memo(
-  ({ color, alt, onLoadingComplete, ...others }: FillImageProps) => {
+  ({ color, alt, onLoadingComplete, isSquare, ...others }: FillImageProps) => {
     const [loaded, setLoaded] = useState(false)
 
     return (
@@ -32,6 +26,7 @@ export const FillImage = memo(
             setLoaded(true)
             onLoadingComplete?.(elem)
           }}
+          loader={isSquare ? squareLoader : defaultLoader}
           {...others}
         />
         <div

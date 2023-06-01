@@ -163,6 +163,8 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                   alt={project.title || '' + ` ${i}`}
                   sizes="10vw"
                   color={colorMap[photo.url]}
+                  quality={30}
+                  isSquare
                 />
               </li>
             )
@@ -235,6 +237,8 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                             alt={project.title || '' + ` ${i}`}
                             sizes="10vw"
                             color={colorMap[preview.url]}
+                            quality={30}
+                            isSquare
                           />
                         </Link>
                       )

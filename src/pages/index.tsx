@@ -250,6 +250,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
                           alt={title || ''}
                           sizes="(orientation: landscape) 45vh, 45vw"
                           color={colorMap[preview.url]}
+                          isSquare
                         />
                       </Link>
                     )

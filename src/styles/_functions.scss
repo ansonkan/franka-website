@@ -1,11 +1,11 @@
 @import './_variables.scss';
 
 // Breakpoint
-@mixin mobile {
-  @media (max-width: #{$mobile-breakpoint}) {
-    @content;
-  }
-}
+// @mixin mobile {
+//   @media (max-width: #{$mobile-breakpoint}) {
+//     @content;
+//   }
+// }
 
 @mixin desktop {
   @media (min-width: #{$mobile-breakpoint}) {
