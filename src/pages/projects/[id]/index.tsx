@@ -207,6 +207,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                         : '60vw'
                     }, 60vw`}
                     color={colorMap[photo.url]}
+                    priority={i < 2}
                   />
                 </li>
               )

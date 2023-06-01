@@ -216,7 +216,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
       <div ref={scrollDivRef} />
 
       <m.div className="base" ref={baseRef} {...mBlurProps}>
-        {projects.map((project, i) => {
+        {projects.map((project, projectIndex) => {
           if (!project || !project.previewsCollection?.items.length) return
 
           const { sys, previewsCollection, title } = project
@@ -227,14 +227,18 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
           )
 
           return (
-            <article className="project" key={sys.id} data-project-index={i}>
+            <article
+              className="project"
+              key={sys.id}
+              // data-project-index={projectIndex}
+            >
               <div className="previewWrapper">
                 <div
                   className="previews"
                   data-previews-count={previewsCollection.items.length}
-                  data-translate-group={i % 2 === 0 ? 'even' : 'odd'}
+                  // data-translate-group={projectIndex % 2 === 0 ? 'even' : 'odd'}
                 >
-                  {previews.map((preview, i) => {
+                  {previews.map((preview, previewIndex) => {
                     if (!preview || !preview.url) return
 
                     return (
@@ -242,7 +246,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
                         href={`/projects/${sys.id}`}
                         className="item"
                         // Note: could have repeated `id` for repeated images, so need to add `i`
-                        key={preview.sys.id + i}
+                        key={preview.sys.id + previewIndex}
                         scroll={false}
                       >
                         <FillImage
@@ -251,6 +255,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
                           sizes="(orientation: landscape) 45vh, 45vw"
                           color={colorMap[preview.url]}
                           isSquare
+                          priority={projectIndex < 2}
                         />
                       </Link>
                     )
