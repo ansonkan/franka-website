@@ -11,14 +11,33 @@ export interface FillImageProps
   > {
   color?: string
   isSquare?: boolean
+  disableHoverEffect?: boolean
+  useSpinner?: boolean
+  spinnerColor?: string
 }
 
 export const FillImage = memo(
-  ({ color, alt, onLoadingComplete, isSquare, ...others }: FillImageProps) => {
+  ({
+    color,
+    alt,
+    onLoadingComplete,
+    isSquare,
+    disableHoverEffect,
+    useSpinner,
+    spinnerColor,
+    ...others
+  }: FillImageProps) => {
     const [loaded, setLoaded] = useState(false)
 
     return (
-      <div className={cn(s.abt, s.root, loaded && s.loaded)}>
+      <div
+        className={cn(
+          s.abt,
+          s.root,
+          loaded && s.loaded,
+          !disableHoverEffect && s.hover
+        )}
+      >
         <Image
           alt={alt}
           fill
@@ -29,10 +48,25 @@ export const FillImage = memo(
           loader={isSquare ? squareLoader : defaultLoader}
           {...others}
         />
+
         <div
           className={cn(s.abt, s.cover)}
           style={color ? { backgroundColor: color } : undefined}
-        />
+        >
+          {useSpinner && (
+            <div
+              className={s.ldsEllipsis}
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              style={spinnerColor ? { '--bg-color': spinnerColor } : {}}
+            >
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          )}
+        </div>
       </div>
     )
   }

@@ -11,18 +11,14 @@ export function squareLoader(props: ImageLoaderProps) {
   return url.href
 }
 
-const DEFAULT_QUALITY_MOBILE = '40'
-const DEFAULT_QUALITY_DESKTOP = '60'
+// const DEFAULT_QUALITY_MOBILE = '40'
+// const DEFAULT_QUALITY_DESKTOP = '60'
 
 function getURL({ src, quality, width }: ImageLoaderProps) {
   const url = new URL(src)
   url.searchParams.set('fm', 'webp')
   url.searchParams.set('w', width.toString())
-  url.searchParams.set(
-    'q',
-    quality?.toString() ||
-      (width < 800 ? DEFAULT_QUALITY_MOBILE : DEFAULT_QUALITY_DESKTOP)
-  )
+  url.searchParams.set('q', quality?.toString() || '60')
 
   return url
 }

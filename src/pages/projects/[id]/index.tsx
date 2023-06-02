@@ -1,19 +1,25 @@
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next'
+import { AnimatePresence, m } from 'framer-motion'
 import {
+  Asset,
   ProjectDocument,
   ProjectQuery,
   ProjectsDocument,
   SelectedProjectsQuery,
 } from '@/gql/graphql'
-import { useEffect, useRef, useState } from 'react'
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { BackArrow } from '@/components/icons/back-arrow'
+import { CloseFullScreen } from '@/components/icons/close-full-screen'
+import { CloseIcon } from '@/components/icons/close'
 import { ContentfulRichText } from '@/components/contentful-rich-text'
 import { FillImage } from '@/components/fill-image'
+import { ForwardArrow } from '@/components/icons/forward-arrow'
 import Link from 'next/link'
+import { OpenInFull } from '@/components/icons/open-in-full'
 import { client } from '@/lib/contentful-gql'
 import { fillColorMap } from '@/lib/get-img-color'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
 import { i18n } from '~/next-i18next.config'
-import { m } from 'framer-motion'
 import { mBlurProps } from '@/constants'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useGsap } from '@/lib/use-gsap'
@@ -33,11 +39,85 @@ interface ProjectPageProps {
   colorMap: Record<string, string>
 }
 
+const Main = memo(MainComponent)
+Main.displayName = 'Main'
+
 const ProjectPage: NextPage<ProjectPageProps> = ({
   project,
   nextSelectedProject,
   colorMap,
 }) => {
+  const lenis = useStore(({ lenis }) => lenis)
+  const [targetImgIndex, setTargetImgIndex] = useState(0)
+  const [isModal, setIsModal] = useState(false)
+
+  const show = useCallback(
+    (index: number) => {
+      if (window.innerWidth < 800) return
+
+      lenis?.stop()
+      setTargetImgIndex(index)
+      setIsModal(true)
+    },
+    [lenis]
+  )
+
+  const close = useCallback(() => {
+    lenis?.start()
+    setIsModal(false)
+  }, [lenis])
+
+  const prev = useCallback(() => {
+    setTargetImgIndex((prevState) => Math.max(prevState - 1, 0))
+  }, [])
+
+  const next = useCallback(() => {
+    setTargetImgIndex((prevState) =>
+      Math.min(prevState + 1, project.mediaCollection?.items.length || 0)
+    )
+  }, [project.mediaCollection?.items.length])
+
+  return (
+    <>
+      <Main
+        project={project}
+        nextSelectedProject={nextSelectedProject}
+        colorMap={colorMap}
+        show={show}
+      />
+
+      <AnimatePresence>
+        {isModal && project.mediaCollection?.items[targetImgIndex] && (
+          <ModalComponent
+            img={project.mediaCollection.items[targetImgIndex]!}
+            prev={prev}
+            next={next}
+            hasPrev={targetImgIndex > 0}
+            hasNext={
+              targetImgIndex < (project.mediaCollection.items.length || 0) - 1
+            }
+            close={close}
+          />
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
+ProjectPage.displayName = 'Project page'
+
+export default ProjectPage
+
+interface MainComponentProps extends ProjectPageProps {
+  show: (index: number) => void
+}
+
+function MainComponent({
+  project,
+  colorMap,
+  nextSelectedProject,
+  show,
+}: MainComponentProps) {
   const { t } = useTranslation('common')
   const lenis = useStore(({ lenis }) => lenis)
   const gsap = useGsap()
@@ -135,7 +215,6 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
 
         <m.ol
           className="overview"
-          // Note:
           /**
            * Note:
            * I think somehow lenis makes it harder to scroll natively in a direction that it is not configed to,
@@ -197,13 +276,14 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
                         }
                       : undefined
                   }
+                  onClick={() => show(i)}
                 >
                   <FillImage
                     src={photo.url}
                     alt={project.title || '' + ` ${i}`}
                     sizes={`(min-width: 800px) ${
                       width && height
-                        ? `calc(40vh * ${width / height})`
+                        ? `calc(50vh * ${width / height})`
                         : '60vw'
                     }, 60vw`}
                     color={colorMap[photo.url]}
@@ -259,9 +339,195 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
   )
 }
 
-ProjectPage.displayName = 'Project page'
+interface ModalComponentProps {
+  img: Pick<Asset, 'url' | 'width' | 'height'>
+  close: () => void
+  prev: () => void
+  next: () => void
+  hasPrev?: boolean
+  hasNext?: boolean
+}
 
-export default ProjectPage
+function ModalComponent({
+  img,
+  close,
+  prev,
+  next,
+  hasPrev,
+  hasNext,
+}: ModalComponentProps) {
+  const gsap = useGsap()
+  // const modalRef = useRef<HTMLDivElement | null>(null)
+  // const modalWrapperRef = useRef<HTMLDivElement | null>(null)
+  const [isFullScreen, setIsFullScreen] = useState(false)
+
+  // Note: doesn't seem to be working... maybe nested Lenis just doesn't work
+  // useEffect(() => {
+  //   if (!modalRef.current || !modalWrapperRef.current) return
+
+  //   const lenis = new Lenis({
+  //     wrapper: modalRef.current,
+  //     content: modalWrapperRef.current,
+  //     syncTouch: true,
+  //   })
+
+  //   return () => {
+  //     lenis.destroy()
+  //   }
+  // }, [])
+
+  const openFullScreen = useCallback(() => {
+    if (!gsap || !img || !img.height || !img.url || !img.width) return
+
+    const modalDiv = document.querySelector('.project_id-modal')
+
+    const imgWrapperClass = '.project_id-modal-img-wrapper'
+    const imgWrapperDiv = document.querySelector(imgWrapperClass)
+
+    if (!modalDiv || !imgWrapperDiv) return
+
+    setIsFullScreen(true)
+
+    gsap
+      .timeline()
+      .set(imgWrapperClass, {
+        height: imgWrapperDiv.getBoundingClientRect().height,
+        onComplete: () => {
+          modalDiv.classList.add('full-screen')
+        },
+      })
+      .to(imgWrapperClass, {
+        opacity: 0,
+        duration: 0.15,
+      })
+      .set(imgWrapperClass, {
+        // Note: should I cap this height? cuz this can goes really really big
+        height:
+          (imgWrapperDiv.getBoundingClientRect().width * img.height) /
+          img.width,
+      })
+      .to(imgWrapperClass, {
+        opacity: 1,
+        duration: 0.15,
+      })
+  }, [gsap, img])
+
+  const closeFullScreen = useCallback(() => {
+    if (!gsap || !img || !img.height || !img.url || !img.width) return
+
+    const modalDiv = document.querySelector('.project_id-modal')
+    const imgWrapperClass = '.project_id-modal-img-wrapper'
+
+    setIsFullScreen(false)
+
+    gsap
+      .timeline()
+      .to(imgWrapperClass, {
+        opacity: 0,
+        duration: 0.15,
+      })
+      .set(imgWrapperClass, {
+        height: '100%',
+        onComplete: () => {
+          modalDiv?.classList.remove('full-screen')
+        },
+      })
+      .to(imgWrapperClass, {
+        opacity: 1,
+        duration: 0.15,
+      })
+  }, [gsap, img])
+
+  const resetFullScreenMode = (onComplete?: () => void) => {
+    if (!isFullScreen || !gsap) return
+
+    const modalDiv = document.querySelector('.project_id-modal')
+    const imgWrapperClass = '.project_id-modal-img-wrapper'
+
+    gsap.set(imgWrapperClass, {
+      height: '100%',
+      onComplete: () => {
+        modalDiv?.classList.remove('full-screen')
+        setIsFullScreen(false)
+        onComplete?.()
+      },
+    })
+  }
+
+  return (
+    <m.div
+      className="project_id-modal"
+      initial={{ '--progress': '100%' } as any}
+      animate={{ '--progress': '0%' } as any}
+      exit={{ '--progress': '100%' } as any}
+      data-lenis-prevent
+      // ref={modalRef}
+    >
+      <div className="project_id-modal-control mix-blend-invert">
+        <div className="project_id-modal-control-others">
+          <button onClick={() => close()}>
+            <CloseIcon />
+          </button>
+
+          <div className="invisible">
+            <CloseIcon />
+          </div>
+        </div>
+
+        <button
+          onClick={() => (isFullScreen ? closeFullScreen() : openFullScreen())}
+        >
+          {isFullScreen ? <CloseFullScreen /> : <OpenInFull />}
+        </button>
+
+        <div className="project_id-modal-control-others">
+          <button
+            onClick={() => {
+              isFullScreen ? resetFullScreenMode(prev) : prev()
+            }}
+            disabled={!hasPrev}
+          >
+            <BackArrow />
+          </button>
+
+          <button
+            onClick={() => {
+              isFullScreen ? resetFullScreenMode(next) : next()
+            }}
+            disabled={!hasNext}
+          >
+            <ForwardArrow />
+          </button>
+        </div>
+      </div>
+
+      <div className="project_id-modal-content">
+        {/* Note: the fade in/out with gsap makes animating transitioning from full screen mode to another image really difficult */}
+        {/* probably should find a way to set this up in a reactive way, since gsap isn't reactive but framer-motion is */}
+        {/* <AnimatePresence> */}
+        <div
+          className="project_id-modal-img-wrapper"
+          onClick={() => {
+            isFullScreen ? closeFullScreen() : openFullScreen()
+          }}
+          key={img.url}
+        >
+          <FillImage
+            src={img.url || ''}
+            alt=""
+            disableHoverEffect
+            color="#222222"
+            sizes="90vw"
+            priority
+            useSpinner
+            spinnerColor="white"
+          />
+        </div>
+        {/* </AnimatePresence> */}
+      </div>
+    </m.div>
+  )
+}
 
 type Params = {
   id: string

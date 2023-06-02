@@ -19,6 +19,7 @@
   --header-px: 2vw;
   --header-py: calc(2 * var(--vh, 1vh));
   --header-p: var(--header-py) var(--header-px);
+  --header-links-gap: 10px;
 
   // START: for the home page mainly
   --gap: 2vw;
@@ -117,4 +118,21 @@ footer {
 .mix-blend-invert {
   color: #ffffff;
   mix-blend-mode: difference;
+}
+
+button,
+a {
+  cursor: pointer;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+button,
+a {
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.3 !important;
+  }
 }

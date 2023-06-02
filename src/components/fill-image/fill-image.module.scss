@@ -27,9 +27,11 @@
     transform: scale(1.05);
   }
 
-  @include hover {
-    &:hover img {
-      transform: scale(1.05);
+  &.hover {
+    @include hover {
+      &:hover img {
+        transform: scale(1.05);
+      }
     }
   }
 }
@@ -38,6 +40,9 @@
   @extend .ani;
   background-color: rgb(215, 215, 215);
   opacity: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .loaded {
@@ -47,5 +52,64 @@
 
   img {
     transform: scale(1);
+  }
+}
+
+.ldsEllipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+
+  div {
+    position: absolute;
+    top: 33px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--bg-color, black);
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+
+    &:nth-child(1) {
+      left: 8px;
+      animation: lds-ellipsis1 1.3s infinite;
+    }
+    &:nth-child(2) {
+      left: 8px;
+      animation: lds-ellipsis2 1.3s infinite;
+    }
+    &:nth-child(3) {
+      left: 32px;
+      animation: lds-ellipsis2 1.3s infinite;
+    }
+    &:nth-child(4) {
+      left: 56px;
+      animation: lds-ellipsis3 1.3s infinite;
+    }
+  }
+}
+
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
   }
 }

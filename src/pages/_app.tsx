@@ -46,8 +46,6 @@ function App({ Component, pageProps }: AppProps) {
     // ScrollTrigger.defaults({ markers: process.env.NODE_ENV === 'development' })
 
     // merge rafs
-    // gsap.defaults({ duration: 0.3 })
-
     if (!gsap) return
 
     gsap.ticker.lagSmoothing(0)
@@ -96,7 +94,7 @@ function App({ Component, pageProps }: AppProps) {
         }
       >
         <div className={cn('root', roboto.className)}>
-          {debug && <Stats />}
+          {/* {debug && <Stats />} */}
 
           <Header />
 

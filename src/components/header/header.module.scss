@@ -23,7 +23,7 @@
   .links {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--header-links-gap);
     text-align: right;
 
     a {
