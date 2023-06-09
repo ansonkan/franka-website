@@ -213,19 +213,7 @@ function MainComponent({
           </div>
         </m.div>
 
-        <m.ol
-          className="overview"
-          /**
-           * Note:
-           * I think somehow lenis makes it harder to scroll natively in a direction that it is not configed to,
-           * in this case, it is configed to scroll vertically, so this horizontal overviews is very difficult to be scrolled
-           * unless lenis is stopped
-           */
-          onTouchStart={() => lenis?.stop()}
-          onTouchCancel={() => lenis?.start()}
-          onTouchEnd={() => lenis?.start()}
-          {...mBlurProps}
-        >
+        <m.ol className="overview" data-lenis-prevent {...mBlurProps}>
           {project.mediaCollection?.items.map((photo, i) => {
             if (!photo || !photo.url) return
 

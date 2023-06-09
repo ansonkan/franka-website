@@ -57,8 +57,16 @@ function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+
+    const isLandscape = window.innerWidth > window.innerHeight
+    const isDesktop = window.innerWidth >= 800
+    // TODO: find a way to control this dynamically (handle screen resize)
+    const scrollBothDirections = isLandscape || isDesktop
+
     const lenis = new Lenis({
       syncTouch: true,
+      gestureOrientation: scrollBothDirections ? 'both' : 'vertical',
+      gestureDirection: scrollBothDirections ? 'both' : 'vertical',
     })
     setLenis(lenis)
 
@@ -94,7 +102,7 @@ function App({ Component, pageProps }: AppProps) {
         }
       >
         <div className={cn('root', roboto.className)}>
-          {/* {debug && <Stats />} */}
+          {debug && <Stats />}
 
           <Header />
 
