@@ -216,7 +216,7 @@
   height: calc(100 * var(--vh, 1vh));
   // padding: var(--header-p);
   overflow-y: auto;
-  background-color: #222222;
+  background-color: var(--dark);
   z-index: 9999;
   clip-path: polygon(
     0 var(--progress, 100%),

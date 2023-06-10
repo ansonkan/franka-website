@@ -6,114 +6,39 @@
   bottom: 0;
   width: 100vw;
   height: calc(100 * var(--vh, 1vh));
-  background-color: #ffffff;
+  background-color: var(--light);
   z-index: 9999;
+
+  --curtain: 100%;
 
   clip-path: polygon(
     0 0,
     100% 0,
-    100% var(--progress, 100%),
-    0 var(--progress, 100%)
+    100% var(--curtain, 100%),
+    0 var(--curtain, 100%)
   );
 
   display: flex;
   justify-content: center;
   align-items: center;
 
-  .ldsEllipsis {
-    display: inline-block;
-    position: relative;
-    width: 80px;
-    height: 80px;
-
-    animation: 0.3s ease-in 0s fade-in;
-
-    div {
-      position: absolute;
-      top: 33px;
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      background: black;
-      animation-timing-function: cubic-bezier(0, 1, 1, 0);
-
-      &:nth-child(1) {
-        left: 8px;
-        animation: lds-ellipsis1 1.3s infinite;
-      }
-      &:nth-child(2) {
-        left: 8px;
-        animation: lds-ellipsis2 1.3s infinite;
-      }
-      &:nth-child(3) {
-        left: 32px;
-        animation: lds-ellipsis2 1.3s infinite;
-      }
-      &:nth-child(4) {
-        left: 56px;
-        animation: lds-ellipsis3 1.3s infinite;
-      }
-    }
-  }
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes lds-ellipsis1 {
-    0% {
-      transform: scale(0);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-  @keyframes lds-ellipsis3 {
-    0% {
-      transform: scale(1);
-    }
-    100% {
-      transform: scale(0);
-    }
-  }
-  @keyframes lds-ellipsis2 {
-    0% {
-      transform: translate(0, 0);
-    }
-    100% {
-      transform: translate(24px, 0);
-    }
-  }
-
-  .welcome {
+  .counter {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+    left: 0;
+    bottom: 0;
 
-    .name {
-      font-size: x-large;
-      font-weight: 700;
-      opacity: 0;
-    }
-
-    .description {
-      font-style: italic;
-      opacity: 0;
+    .base {
+      padding: var(--header-p);
+      font-size: 15vw;
+      font-family: ui-monospace;
     }
   }
 
-  .hint {
-    position: absolute;
-    bottom: calc(20 * var(--vh, 1vh));
-    text-align: center;
-    opacity: 0;
+  .progressOverlay {
+    background-color: var(--dark);
+    width: 100%;
+    height: 100%;
+
+    transform: translateY(calc(100% - var(--progress, 0%)));
   }
 }

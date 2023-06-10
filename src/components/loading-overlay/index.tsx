@@ -1,91 +1,102 @@
-import { useEffect, useState } from 'react'
+import { clamp, lerp } from '@/lib/maths'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import cn from 'clsx'
 import s from './loading-overlay.module.scss'
+import { useFrame } from '@studio-freight/hamo'
 import { useGsap } from '@/lib/use-gsap'
 import { useStore } from '@/lib/use-store'
-import { useTranslation } from 'next-i18next'
 
 export const LoadingOverlay = () => {
-  const { t } = useTranslation()
   const { lenis, framerMotionReady, gsapReady, fontsReady } = useStore(
     (state) => state
   )
   const isReady = framerMotionReady && gsapReady && fontsReady
-  const gsap = useGsap()
 
   const [isVisible, setIsVisible] = useState(!isReady)
+  const progressOverlayRef = useRef<HTMLDivElement | null>(null)
+  const isClosing = useRef(false)
+
+  const gsap = useGsap()
+  const progress = useRef(0)
+  // const aniProgress = useRef(0)
+  const [aniProgress, setAniProgress] = useState(0)
 
   useEffect(() => {
-    if (isReady) {
-      setTimeout(() => {
-        const ease = 'power2.inOut'
-        const duration = 1
-        const stagger = duration / 10
+    const interval = setInterval(() => {
+      if (progress.current < 90) progress.current++
+    }, 50)
 
-        gsap
-          ?.timeline({
-            onComplete: () => {
-              setIsVisible(false)
-            },
-          })
-          .to(`.${s.ldsEllipsis}`, { opacity: 0, duration, ease })
-          .fromTo(
-            [`.${s.name}`, `.${s.description}`],
-            { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, stagger, ease }
-          )
-          .fromTo(
-            `.${s.hint}`,
-            { opacity: 0, y: 10 },
-            { opacity: 0.7, y: 0, duration, ease },
-            `-=${stagger}`
-          )
-          .to([`.${s.name}`, `.${s.description}`], {
-            opacity: 0,
-            y: -10,
-            stagger,
-            ease,
-          })
-          .to(
-            `.${s.hint}`,
-            { opacity: 0, y: -10, duration, ease },
-            `-=${stagger}`
-          )
-          .fromTo(
-            `.${s.loadingScreen}`,
-            { '--progress': '100%' },
-            {
-              '--progress': '0%',
-              ease,
-              onStart: () => {
-                lenis?.scrollTo(0, { force: true })
-              },
-            }
-          )
-      }, 500)
+    return () => {
+      clearInterval(interval)
     }
-  }, [gsap, isReady, lenis])
+  }, [])
+
+  useEffect(() => {
+    if (gsapReady) {
+      progress.current = clamp(0, 100, progress.current + 34)
+    }
+  }, [gsapReady])
+
+  useEffect(() => {
+    if (framerMotionReady) {
+      progress.current = clamp(0, 100, progress.current + 34)
+    }
+  }, [framerMotionReady])
+
+  useEffect(() => {
+    if (fontsReady) {
+      progress.current = clamp(0, 100, progress.current + 34)
+    }
+  }, [fontsReady])
+
+  useEffect(() => {
+    if (isReady && progress.current < 100) {
+      progress.current = 100
+    }
+  }, [isReady])
+
+  const close = useCallback(() => {
+    if (!gsap || isClosing.current) return
+
+    isClosing.current = true
+
+    gsap.to(`.${s.loadingScreen}`, {
+      '--curtain': '0%',
+      ease: 'power2.inOut',
+      duration: 1,
+      onStart: () => {
+        lenis?.scrollTo(0, { force: true })
+      },
+      onComplete: () => {
+        setIsVisible(false)
+      },
+    })
+  }, [gsap, lenis])
+
+  useFrame(() => {
+    if (progress.current >= 100 && aniProgress >= 99.9) {
+      close()
+    }
+
+    setAniProgress(clamp(0, 100, lerp(aniProgress, progress.current, 0.1)))
+
+    progressOverlayRef.current?.style.setProperty(
+      '--progress',
+      `${aniProgress}%`
+    )
+  })
 
   if (!isVisible) return <></>
 
   return (
     <div className={s.loadingScreen}>
-      <div className={s.ldsEllipsis}>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
+      <div className={s.progressOverlay} ref={progressOverlayRef} />
 
-      <div className={s.welcome}>
-        <div className={s.name}>
-          {t('plain-text.loading-overlay.welcome.name')}
-        </div>
-        <div className={s.description}>
-          {t('plain-text.loading-overlay.welcome.description')}
-        </div>
+      <div className={cn(s.counter, 'mix-blend-invert')}>
+        <div className={s.base}>{`${aniProgress
+          .toFixed(0)
+          .padStart(3, '0')}%`}</div>
       </div>
-
-      <div className={s.hint}>{t('plain-text.loading-overlay.hint')}</div>
     </div>
   )
 }

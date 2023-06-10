@@ -44,11 +44,14 @@
   @include desktop {
     --normal-page-top-offset: calc(12 * var(--vh, 1vh) - var(--gap));
   }
+
+  --light: #ffffff;
+  --dark: #222222;
 }
 
 html {
   scrollbar-width: thin;
-  background-color: #ffffff;
+  background-color: var(--light);
 }
 
 html.lenis {
