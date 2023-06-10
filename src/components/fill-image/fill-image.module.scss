@@ -24,13 +24,13 @@
 
   img {
     @extend .ani;
-    transform: scale(1.05);
+    transform: scale(1.1);
   }
 
   &.hover {
     @include hover {
       &:hover img {
-        transform: scale(1.05);
+        transform: scale(1.1);
       }
     }
   }

@@ -233,21 +233,34 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
               // data-project-index={projectIndex}
             >
               <div className="previewWrapper">
-                <div
+                <Link
+                  href={`/projects/${sys.id}`}
+                  scroll={false}
                   className="previews"
                   data-previews-count={previewsCollection.items.length}
+                  data-project-id={sys.id}
                   // data-translate-group={projectIndex % 2 === 0 ? 'even' : 'odd'}
+                  // onMouseEnter={() =>
+                  //   gsap?.to(`.previews:not([data-project-id="${sys.id}"])`, {
+                  //     opacity: 0.4,
+                  //   })
+                  // }
+                  // onMouseLeave={() =>
+                  //   gsap?.to('.previews', {
+                  //     opacity: 1,
+                  //   })
+                  // }
                 >
                   {previews.map((preview, previewIndex) => {
                     if (!preview || !preview.url) return
 
                     return (
-                      <Link
-                        href={`/projects/${sys.id}`}
+                      <div
+                        // href={`/projects/${sys.id}`}
                         className="item"
                         // Note: could have repeated `id` for repeated images, so need to add `i`
                         key={preview.sys.id + previewIndex}
-                        scroll={false}
+                        // scroll={false}
                       >
                         <FillImage
                           src={preview.url}
@@ -257,10 +270,10 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
                           isSquare
                           priority={projectIndex < 2}
                         />
-                      </Link>
+                      </div>
                     )
                   })}
-                </div>
+                </Link>
               </div>
             </article>
           )

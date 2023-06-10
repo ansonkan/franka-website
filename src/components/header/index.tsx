@@ -36,15 +36,27 @@ export const Header = () => {
       </Link>
 
       <div className={s.links}>
-        <Link href="/" scroll={false}>
+        <Link
+          href="/"
+          scroll={false}
+          className={cn(asPath === '/' && 'disabled')}
+        >
           {t('plain-text.header.selected-projects')}
         </Link>
 
-        <Link href="/projects" scroll={false}>
+        <Link
+          href="/projects"
+          scroll={false}
+          className={cn(asPath === '/projects' && 'disabled')}
+        >
           {t('plain-text.header.all-projects')}
         </Link>
 
-        <Link href="/contact" scroll={false}>
+        <Link
+          href="/contact"
+          scroll={false}
+          className={cn(asPath === '/contact' && 'disabled')}
+        >
           {t('plain-text.header.contact')}
         </Link>
 
@@ -54,13 +66,14 @@ export const Header = () => {
               <Fragment key={l}>
                 {i > 0 && ' / '}
 
-                {locale === l ? (
-                  <p>{t(`plain-text.header.locales.${l}`)}</p>
-                ) : (
-                  <Link href={asPath} locale={l} scroll={false}>
-                    {t(`plain-text.header.locales.${l}`)}
-                  </Link>
-                )}
+                <Link
+                  href={asPath}
+                  locale={l}
+                  scroll={false}
+                  className={cn(locale === l && 'disabled')}
+                >
+                  {t(`plain-text.header.locales.${l}`)}
+                </Link>
               </Fragment>
             )
           })}

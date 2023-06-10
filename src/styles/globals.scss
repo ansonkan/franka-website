@@ -19,7 +19,7 @@
   --header-px: 2vw;
   --header-py: calc(2 * var(--vh, 1vh));
   --header-p: var(--header-py) var(--header-px);
-  --header-links-gap: 10px;
+  --header-links-gap: 14px;
 
   // START: for the home page mainly
   --gap: 2vw;
@@ -95,7 +95,7 @@ footer {
   font-size: small;
 
   @include desktop {
-    font-size: medium;
+    font-size: large;
   }
 }
 
@@ -131,8 +131,10 @@ a {
 
 button,
 a {
-  &:disabled {
-    cursor: not-allowed;
+  &:disabled,
+  &.disabled {
+    cursor: default;
     opacity: 0.3 !important;
+    text-decoration: none !important;
   }
 }

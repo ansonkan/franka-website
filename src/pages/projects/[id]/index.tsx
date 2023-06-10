@@ -451,6 +451,31 @@ function ModalComponent({
       data-lenis-prevent
       // ref={modalRef}
     >
+      <div className="project_id-modal-content">
+        {/* Note: the fade in/out with gsap makes animating transitioning from full screen mode to another image really difficult */}
+        {/* probably should find a way to set this up in a reactive way, since gsap isn't reactive but framer-motion is */}
+        {/* <AnimatePresence> */}
+        <div
+          className="project_id-modal-img-wrapper"
+          onClick={() => {
+            isFullScreen ? closeFullScreen() : openFullScreen()
+          }}
+          key={img.url}
+        >
+          <FillImage
+            src={img.url || ''}
+            alt=""
+            disableHoverEffect
+            color="#222222"
+            sizes="90vw"
+            priority
+            useSpinner
+            spinnerColor="white"
+          />
+        </div>
+        {/* </AnimatePresence> */}
+      </div>
+
       <div className="project_id-modal-control mix-blend-invert">
         <div className="project_id-modal-control-others">
           <button onClick={() => close()}>
@@ -487,31 +512,6 @@ function ModalComponent({
             <ForwardArrow />
           </button>
         </div>
-      </div>
-
-      <div className="project_id-modal-content">
-        {/* Note: the fade in/out with gsap makes animating transitioning from full screen mode to another image really difficult */}
-        {/* probably should find a way to set this up in a reactive way, since gsap isn't reactive but framer-motion is */}
-        {/* <AnimatePresence> */}
-        <div
-          className="project_id-modal-img-wrapper"
-          onClick={() => {
-            isFullScreen ? closeFullScreen() : openFullScreen()
-          }}
-          key={img.url}
-        >
-          <FillImage
-            src={img.url || ''}
-            alt=""
-            disableHoverEffect
-            color="#222222"
-            sizes="90vw"
-            priority
-            useSpinner
-            spinnerColor="white"
-          />
-        </div>
-        {/* </AnimatePresence> */}
       </div>
     </m.div>
   )

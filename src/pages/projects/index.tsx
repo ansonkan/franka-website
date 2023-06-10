@@ -7,6 +7,7 @@ import { getImgColor } from '@/lib/get-img-color'
 import { m } from 'framer-motion'
 import { mBlurProps } from '@/constants'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useGsap } from '@/lib/use-gsap'
 import { useTranslation } from 'next-i18next'
 
 interface ProjectsPageProps {
@@ -16,6 +17,15 @@ interface ProjectsPageProps {
 
 const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
   const { t } = useTranslation('common')
+  const gsap = useGsap()
+
+  const onMouseEnter = (id: string) => {
+    gsap?.to(`.project-row:not([data-project-id="${id}"])`, { opacity: 0.4 })
+  }
+
+  const onMouseLeave = () => {
+    gsap?.to('.project-row', { opacity: 1 })
+  }
 
   return (
     <main className="projects-page normalPageRoot">
@@ -37,15 +47,30 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, colorMap }) => {
               const href = `/projects/${sys.id}`
 
               return (
-                <tr key={sys.id}>
+                <tr
+                  key={sys.id}
+                  data-project-id={sys.id}
+                  className="project-row"
+                >
                   <td>
-                    <Link href={href} scroll={false}>
+                    <Link
+                      href={href}
+                      scroll={false}
+                      onMouseEnter={() => onMouseEnter(sys.id)}
+                      onMouseLeave={onMouseLeave}
+                    >
                       <h2 className="title">{title}</h2>
                     </Link>
                   </td>
 
                   <td>
-                    <Link href={href} className="previewsCol" scroll={false}>
+                    <Link
+                      href={href}
+                      className="previewsCol"
+                      scroll={false}
+                      onMouseEnter={() => onMouseEnter(sys.id)}
+                      onMouseLeave={onMouseLeave}
+                    >
                       {previewsCollection?.items.map((photo, i) => {
                         if (!photo || !photo.url) return
 

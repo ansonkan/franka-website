@@ -228,7 +228,7 @@
 
   #{&}-control {
     position: sticky;
-    top: 0;
+    bottom: 0;
     padding: var(--header-p);
     z-index: 2;
 
@@ -249,6 +249,14 @@
     }
   }
 
+  button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  }
+
   #{&}-control-others {
     position: relative;
     display: flex;
@@ -256,19 +264,12 @@
     align-items: center;
     justify-content: center;
     gap: var(--header-links-gap);
-
-    button {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-    }
   }
 
   #{&}-content {
     position: relative;
     padding: var(--header-p);
-    padding-top: 0;
+    padding-bottom: 0;
 
     flex-grow: 1;
 
