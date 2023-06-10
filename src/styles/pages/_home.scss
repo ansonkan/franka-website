@@ -106,4 +106,21 @@
       }
     }
   }
+
+  .hint {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    padding: var(--header-p);
+
+    opacity: 0.7;
+    font-style: italic;
+    pointer-events: none;
+
+    visibility: hidden;
+
+    @include desktop {
+      visibility: visible;
+    }
+  }
 }

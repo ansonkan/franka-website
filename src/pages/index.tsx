@@ -12,6 +12,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useGsap } from '@/lib/use-gsap'
 import { useScroll } from '@/lib/use-scroll'
 import { useStore } from '@/lib/use-store'
+import { useTranslation } from 'next-i18next'
 
 interface IndexProps {
   projects: NonNullable<
@@ -25,6 +26,7 @@ interface IndexProps {
 }
 
 const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
+  const { t } = useTranslation('common')
   const [lenis] = useStore(({ lenis }) => [lenis])
   const gsap = useGsap()
 
@@ -91,7 +93,8 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
 
       if (isLandscape) {
         gsap.to(baseRef.current, { x: -scroll })
-        // return
+
+        gsap.to('.home-page .hint', { opacity: scroll > 100 ? 0 : 1 })
       }
 
       const axis = isLandscape ? window.innerHeight : window.innerWidth
@@ -279,6 +282,8 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
           )
         })}
       </m.div>
+
+      <div className="hint">{t('plain-text.home.hint.scroll')}</div>
     </main>
   )
 }

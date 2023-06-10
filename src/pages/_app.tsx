@@ -66,7 +66,6 @@ function App({ Component, pageProps }: AppProps) {
     const lenis = new Lenis({
       syncTouch: true,
       gestureOrientation: scrollBothDirections ? 'both' : 'vertical',
-      gestureDirection: scrollBothDirections ? 'both' : 'vertical',
     })
     setLenis(lenis)
 
