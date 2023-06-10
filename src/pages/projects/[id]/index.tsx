@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { OpenInFull } from '@/components/icons/open-in-full'
 import { client } from '@/lib/contentful-gql'
 import { fillColorMap } from '@/lib/get-img-color'
+import { getProjects } from '@/lib/queries/get-projects'
 import { getSelectedProjects } from '@/lib/queries/get-selected-projects'
 import { i18n } from '~/next-i18next.config'
 import { mBlurProps } from '@/constants'
@@ -36,6 +37,7 @@ interface ProjectPageProps {
       >['items'][number]
     >['projectsCollection']
   >['items'][number]
+  projectsPreviews?: Pick<Asset, 'url'>[]
   colorMap: Record<string, string>
 }
 
@@ -45,6 +47,7 @@ Main.displayName = 'Main'
 const ProjectPage: NextPage<ProjectPageProps> = ({
   project,
   nextSelectedProject,
+  projectsPreviews,
   colorMap,
 }) => {
   const lenis = useStore(({ lenis }) => lenis)
@@ -82,6 +85,7 @@ const ProjectPage: NextPage<ProjectPageProps> = ({
       <Main
         project={project}
         nextSelectedProject={nextSelectedProject}
+        projectsPreviews={projectsPreviews}
         colorMap={colorMap}
         show={show}
       />
@@ -116,6 +120,7 @@ function MainComponent({
   project,
   colorMap,
   nextSelectedProject,
+  projectsPreviews,
   show,
 }: MainComponentProps) {
   const { t } = useTranslation('common')
@@ -284,14 +289,14 @@ function MainComponent({
 
           <div className="outro" ref={outroRef}>
             {nextSelectedProject?.previewsCollection?.items.length && (
-              <>
-                <Link
-                  href={`/projects/${nextSelectedProject.sys.id}`}
-                  className="next"
-                  scroll={false}
-                >
+              <Link
+                href={`/projects/${nextSelectedProject.sys.id}`}
+                scroll={false}
+                className="link"
+              >
+                <div className="next">
                   {t('plain-text.project-id.next-label')}
-                </Link>
+                </div>
 
                 <div className="overview reverse">
                   {nextSelectedProject?.previewsCollection?.items.map(
@@ -299,11 +304,9 @@ function MainComponent({
                       if (!preview || !preview.url) return
 
                       return (
-                        <Link
+                        <div
                           key={preview.sys.id}
-                          href={`/projects/${nextSelectedProject.sys.id}`}
                           className="overviewImgWrapper"
-                          scroll={false}
                         >
                           <FillImage
                             src={preview.url}
@@ -313,13 +316,41 @@ function MainComponent({
                             quality={30}
                             isSquare
                           />
-                        </Link>
+                        </div>
                       )
                     }
                   )}
                 </div>
-              </>
+              </Link>
             )}
+
+            {!nextSelectedProject?.previewsCollection?.items.length &&
+              projectsPreviews?.length && (
+                <Link href="/projects" scroll={false} className="link">
+                  <div className="next">
+                    {t('plain-text.project-id.projects-label')}
+                  </div>
+
+                  <div className="overview reverse">
+                    {projectsPreviews.map((preview, i) => {
+                      if (!preview || !preview.url) return
+
+                      return (
+                        <div key={i} className="overviewImgWrapper">
+                          <FillImage
+                            src={preview.url}
+                            alt={project.title || '' + ` ${i}`}
+                            sizes="20vw"
+                            color={colorMap[preview.url]}
+                            quality={30}
+                            isSquare
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                </Link>
+              )}
           </div>
         </m.div>
       </main>
@@ -600,11 +631,31 @@ export const getStaticProps: GetStaticProps<ProjectPageProps, Params> = async ({
     }
   }
 
+  const projects = await getProjects(locale)
+  const projectsPreviews = projects?.projectsCollection?.items.reduce(
+    (acc, cur) => {
+      if (acc.length === 3) return acc
+
+      if (
+        cur?.previewsCollection?.items.length &&
+        !!cur.previewsCollection.items[0]
+      ) {
+        acc.push(cur.previewsCollection.items[0])
+      }
+
+      return acc
+    },
+    [] as Pick<Asset, 'url'>[]
+  )
+
+  await fillColorMap(projectsPreviews, colorMap)
+
   return {
     props: {
       ...translations,
       project: data.projects,
       colorMap,
+      projectsPreviews,
     },
   }
 }

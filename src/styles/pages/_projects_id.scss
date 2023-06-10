@@ -84,10 +84,16 @@
   }
 
   .outro {
-    @extend .intro;
-
-    gap: var(--overview-square-gap);
     padding-bottom: calc(10 * var(--vh, 1vh));
+
+    .link {
+      @extend .intro;
+      gap: var(--overview-square-gap);
+
+      @include desktop {
+        padding: 0;
+      }
+    }
 
     @include desktop {
       width: auto;
