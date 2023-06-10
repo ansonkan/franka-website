@@ -11,12 +11,6 @@
 .ani {
   // Note: the cubic-bezier is copied from https://dashdigital.studio/
   transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-  /*
-    Note: 
-    This delay is a workaround for images still has not been appeared even after onLoadingComplete.
-    Don't know if I'm setting this component up incorrectly. 0.3s might not be enough for every device
-  */
-  transition-delay: 0.3s;
 }
 
 .root {
@@ -43,6 +37,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /*
+    Note: 
+    This delay is a workaround for images still has not been appeared even after onLoadingComplete.
+    Don't know if I'm setting this component up incorrectly. 0.3s might not be enough for every device
+  */
+  transition-delay: 0.3s;
 }
 
 .loaded {
