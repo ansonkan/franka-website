@@ -7,8 +7,26 @@ import { useGsap } from '@/lib/use-gsap'
 import { useStore } from '@/lib/use-store'
 
 export const LoadingOverlay = () => {
-  const { lenis, framerMotionReady, gsapReady, fontsReady } = useStore(
-    (state) => state
+  const {
+    lenis,
+    framerMotionReady,
+    gsapReady,
+    fontsReady,
+    hideLoadingOverlay,
+  } = useStore(
+    ({
+      lenis,
+      framerMotionReady,
+      gsapReady,
+      fontsReady,
+      hideLoadingOverlay,
+    }) => ({
+      lenis,
+      framerMotionReady,
+      gsapReady,
+      fontsReady,
+      hideLoadingOverlay,
+    })
   )
   const isReady = framerMotionReady && gsapReady && fontsReady
 
@@ -69,9 +87,10 @@ export const LoadingOverlay = () => {
       },
       onComplete: () => {
         setIsVisible(false)
+        hideLoadingOverlay()
       },
     })
-  }, [gsap, lenis])
+  }, [gsap, hideLoadingOverlay, lenis])
 
   useFrame(() => {
     if (progress.current >= 100 && aniProgress >= 99.9) {

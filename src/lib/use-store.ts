@@ -14,6 +14,8 @@ export interface Store {
   gsapReady: boolean
   framerMotionReady: boolean
   setReady: (name: LazyItems | `${LazyItems}`) => void
+  isLoadingOverlayVisible: boolean
+  hideLoadingOverlay: () => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -35,4 +37,6 @@ export const useStore = create<Store>((set) => ({
         break
     }
   },
+  isLoadingOverlayVisible: true,
+  hideLoadingOverlay: () => set({ isLoadingOverlayVisible: false }),
 }))

@@ -27,7 +27,16 @@ function App({ Component, pageProps }: AppProps) {
   const debug = useDebug()
   const router = useRouter()
   const { t } = useTranslation('common')
-  const { lenis, setLenis, setReady, fontsReady } = useStore((state) => state)
+  const { lenis, setLenis, setReady, fontsReady, isLoadingOverlayVisible } =
+    useStore(
+      ({ lenis, setLenis, setReady, fontsReady, isLoadingOverlayVisible }) => ({
+        lenis,
+        setLenis,
+        setReady,
+        fontsReady,
+        isLoadingOverlayVisible,
+      })
+    )
   const gsap = useGsap()
 
   useEffect(() => {
@@ -133,7 +142,7 @@ function App({ Component, pageProps }: AppProps) {
             )}
           </footer>
 
-          <LoadingOverlay />
+          {isLoadingOverlayVisible && <LoadingOverlay />}
         </div>
       </LazyMotion>
 
