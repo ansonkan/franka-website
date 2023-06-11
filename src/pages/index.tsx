@@ -41,6 +41,9 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
 
     lenis?.stop()
 
+    // Note:
+    // This is simple but still not in perfect sync with RAF. Probably better to find a way
+    // to track what's visible mathematically
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(({ target, isIntersecting }) => {
