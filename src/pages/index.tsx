@@ -242,28 +242,15 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
                   className="previews"
                   data-previews-count={previewsCollection.items.length}
                   data-project-id={sys.id}
-                  // data-translate-group={projectIndex % 2 === 0 ? 'even' : 'odd'}
-                  // onMouseEnter={() =>
-                  //   gsap?.to(`.previews:not([data-project-id="${sys.id}"])`, {
-                  //     opacity: 0.4,
-                  //   })
-                  // }
-                  // onMouseLeave={() =>
-                  //   gsap?.to('.previews', {
-                  //     opacity: 1,
-                  //   })
-                  // }
                 >
                   {previews.map((preview, previewIndex) => {
                     if (!preview || !preview.url) return
 
                     return (
                       <div
-                        // href={`/projects/${sys.id}`}
                         className="item"
                         // Note: could have repeated `id` for repeated images, so need to add `i`
                         key={preview.sys.id + previewIndex}
-                        // scroll={false}
                       >
                         <FillImage
                           src={preview.url}
@@ -271,7 +258,23 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
                           sizes="(orientation: landscape) 45vh, 45vw"
                           color={colorMap[preview.url]}
                           isSquare
-                          priority={projectIndex < 2}
+                          /**
+                           * Note:
+                           * Due to this looping mechanism, a `FillImage` that being in the middle
+                           * of its on-load animation could be instantly translated to offscreen, and
+                           * vice versa.
+                           *
+                           * One of the hacky fix I guess would be forcing repeating images to load or
+                           * animate their cover when one of them loaded.
+                           *
+                           * The other way, which is the current workaround, have all of them be `priority`
+                           * and `loading="eager"` to force them to load even before entering the screen,
+                           * hence finishing the appearing animation before that. But this is the dirtier
+                           * workaround because this really depends on user's loading speed at the end of
+                           * day.
+                           */
+                          priority
+                          loading="eager"
                         />
                       </div>
                     )

@@ -65,7 +65,7 @@ export const LoadingOverlay = () => {
       ease: 'power2.inOut',
       duration: 1,
       onStart: () => {
-        lenis?.scrollTo(0, { force: true })
+        lenis?.scrollTo(0, { force: true, lock: true })
       },
       onComplete: () => {
         setIsVisible(false)
