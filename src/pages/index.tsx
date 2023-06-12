@@ -222,7 +222,7 @@ const Index: NextPage<IndexProps> = ({ projects, colorMap }) => {
       <div ref={scrollDivRef} />
 
       <m.div className="base" ref={baseRef} {...mBlurProps}>
-        {projects.map((project, projectIndex) => {
+        {projects.map((project) => {
           if (!project || !project.previewsCollection?.items.length) return
 
           const { sys, previewsCollection, title } = project
