@@ -1,3 +1,5 @@
+This is my first website created for and actually used by someone. I learned a lot about UI designs and GSAP. Archiving this.
+
 # Franka's website
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/094deaf7-3a04-4611-b645-53408bf1e33b/deploy-status)](https://app.netlify.com/sites/franka/deploys)
